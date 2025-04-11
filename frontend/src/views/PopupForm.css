@@ -1,0 +1,315 @@
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.popup-content {
+  background-color: white;
+  padding: 40px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  position: relative;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Close button styles */
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #ff3a3a;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  font-weight: bold;
+  transition: all 0.2s;
+  z-index: 1001;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.close-button:hover {
+  background-color: #e60000;
+  transform: scale(1.1);
+}
+
+.form-title {
+  text-align: center;
+  color: #223860;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+  position: relative;
+}
+
+.form-title:after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background-color: #223860;
+  margin: 12px auto 0;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -12px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  transition: all 0.3s;
+}
+
+.form-group:focus-within label {
+  color: #223860;
+  font-weight: 600;
+}
+
+.half {
+  width: 50%;
+}
+
+.full {
+  width: 100%;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 15px;
+  color: #444;
+  transition: color 0.2s;
+}
+
+label::after {
+  content: '';
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23223860%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+  padding-right: 30px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #223860;
+  box-shadow: 0 0 0 3px rgba(34, 56, 96, 0.15);
+  background-color: #fff;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+textarea::placeholder {
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* Required field indicator */
+label[for]:not([for="apartmentSuite"]):not([for="textConsent"]):after {
+  content: "*";
+  color: #ff3a3a;
+  margin-left: 4px;
+}
+
+.submit-button {
+  background-color: #223860;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  margin-top: 15px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(34, 56, 96, 0.2);
+}
+
+.submit-button:hover {
+  background-color: #152540;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(34, 56, 96, 0.3);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(34, 56, 96, 0.2);
+}
+
+.arrow {
+  margin-left: 10px;
+  font-size: 22px;
+  transition: transform 0.2s;
+}
+
+.submit-button:hover .arrow {
+  transform: translateX(3px);
+}
+/* Add to your existing CSS */
+.section-title {
+  text-align: left;
+  color: #223860;
+  margin: 25px 0 15px;
+  font-size: 20px;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-right: 10px;
+  width: auto;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: #223860;
+  box-shadow: 0 0 0 3px rgba(34, 56, 96, 0.15);
+  background-color: #fff;
+}
+
+.price-button {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(23, 162, 184, 0.2);
+}
+
+.price-button:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(23, 162, 184, 0.3);
+}
+
+.price-estimate {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.price-estimate h3 {
+  margin: 0;
+  color: #223860;
+  font-size: 24px;
+}
+
+@media (max-width: 768px) {
+  .half {
+    width: 100%;
+  }
+  
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .popup-content {
+    padding: 25px 20px;
+    width: 95%;
+  }
+  
+  .form-title {
+    font-size: 24px;
+  }
+  
+  .form-title:after {
+    width: 50px;
+    margin: 10px auto 0;
+  }
+}

@@ -1,0 +1,122 @@
+.testimonials-slider {
+  text-align: center;
+  max-width: 1020px;
+  margin: 0 auto;
+  padding-top: 100px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.testimonial-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin-top: 50px;
+}
+
+.testimonials-wrapper {
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1;
+  gap: 20px;
+}
+
+.testimonial {
+  flex: 1;
+  padding: 20px;
+  min-width: 0; /* Allows the flex items to shrink below their minimum content size */
+  max-width: 50%; /* Ensures each testimonial takes up roughly half the space */
+}
+
+.testimonial.empty {
+  visibility: hidden;
+}
+
+.testimonial-profile {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.profile-image {
+  width: 20vh; /* Reduced size to fit two testimonials */
+  height: 20vh;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.testimonial-details h1 {
+  font-size: xx-large;
+}
+
+.testimonial p {
+  font-style: italic;
+  font-size: 16px; /* Slightly smaller text */
+  line-height: 1.5;
+  margin-bottom: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Limit to 4 lines */
+  -webkit-box-orient: vertical;
+}
+
+.testimonial-details h3 {
+  margin: 10px 0 5px;
+  color: white;
+}
+
+.testimonial-details p {
+  color: white;
+  font-size: 14px;
+}
+
+.nav-button {
+  background: white;
+  border: none;
+  font-size: 30px;
+  cursor: pointer;
+  padding: 10px;
+  transition: background 0.3s;
+  z-index: 2; /* Ensure buttons are above testimonials */
+}
+
+.nav-button:hover {
+  background: rgb(0, 0, 0);
+  color: aliceblue;
+}
+
+.testimonial-dots {
+  margin-top: 15px;
+}
+
+.dot {
+  cursor: pointer;
+  font-size: 20px;
+  color: #ddd;
+  margin: 10px 10px;
+  transition: color 0.3s;
+}
+
+.dot.active {
+  color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .testimonials-wrapper {
+    flex-direction: column;
+  }
+  
+  .testimonial {
+    max-width: 100%;
+  }
+  
+  .profile-image {
+    width: 15vh;
+    height: 15vh;
+  }
+}

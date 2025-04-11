@@ -1,0 +1,23 @@
+# Node.js (React)
+node_modules/
+
+/.pnp
+.pnp.js
+# Python (Django)
+venv/
+.env/
+__pycache__/
+*.pyc
+db.sqlite3
+
+# OS
+.DS_Store
+
+
+
+# testing
+/coverage
+
+# production
+/build
+
