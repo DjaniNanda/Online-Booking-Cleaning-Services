@@ -132,7 +132,6 @@ function Navbar() {
                                 </a>
                             </li>
                             
-                            {/* Modified Services link to fix the error */}
                             <li className="nav-item" onMouseEnter={() => handleMouseEnter(4)} onMouseLeave={handleMouseLeave}>
                                 <a
                                     className="nav-link"
@@ -156,6 +155,9 @@ function Navbar() {
                                     Checklists
                                 </a>
                             </li>
+                            {/* Only show mobile buttons container if not on booking page */}
+                    {!isBookingPage && (
+                        <>
                             <li className="nav-item cta-desktop">
                                 <button id='estimation' onClick={() => setIsPopupOpen(true)} className="open-btn">Get A Quote</button>
                             </li>
@@ -171,6 +173,7 @@ function Navbar() {
                                     </button>
                                 </a>
                             </li>
+                            </>)}
                         </ul>
                     </div>
 
