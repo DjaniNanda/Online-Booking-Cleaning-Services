@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from './images/logo1.jpg';
 import './Navbar.css';
 import PopupForm from "./PopupForm.js";
@@ -10,15 +10,40 @@ function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     
-    // Get current location to check if we're on the booking form page
+    // Get current location and navigator for routing
     const location = useLocation();
-    // Update the path check to match your actual route
+    const navigate = useNavigate();
+    
     const isBookingPage = location.pathname === '/bookingform' || location.pathname === '/bookingform/';
     
-    // For debugging - you can remove this after confirming it works
-    console.log("Current path:", location.pathname);
-    console.log("Is booking page:", isBookingPage);
+    // Function to handle smooth scrolling to sections
+    const scrollToSection = (sectionId) => {
+        // If we're on the homepage, scroll to the section
+        if (location.pathname === '/' || location.pathname === '') {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else {
+            // If we're on another page, navigate to homepage and then scroll
+            navigate('/', { state: { scrollTo: sectionId } });
+        }
+    };
     
+    // Check if we need to scroll to a section after navigation
+    useEffect(() => {
+        if (location.state && location.state.scrollTo) {
+            setTimeout(() => {
+                const element = document.getElementById(location.state.scrollTo);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+                // Clear the state to prevent unexpected scrolling
+                window.history.replaceState({}, document.title);
+            }, 100); // Small delay to ensure component is mounted
+        }
+    }, [location]);
+
     // Handle window resize
     useEffect(() => {
         const handleResize = () => {
@@ -46,12 +71,17 @@ function Navbar() {
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
     };
+    
+    // Navigate to booking form
+    const navigateToBookingForm = () => {
+        navigate('/bookingform');
+    };
 
     return (
         <div className="navbar-wrapper">
             <nav className="navbar navbar-expand-lg navbar-dark">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="#">
+                    <a className="navbar-brand" href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
                         <img src={logo} alt="Logo" />
                     </a>
                     
@@ -69,53 +99,78 @@ function Navbar() {
                     <div className={`collapse navbar-collapse justify-content-end ${mobileMenuOpen ? 'show' : ''}`} id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <Link className="nav-link" to="/" onMouseEnter={() => handleMouseEnter(0)} onMouseLeave={handleMouseLeave}>
+                                <Link 
+                                    className="nav-link" 
+                                    to="/" 
+                                    onClick={(e) => { e.preventDefault(); navigate('/'); }} 
+                                    onMouseEnter={() => handleMouseEnter(0)} 
+                                    onMouseLeave={handleMouseLeave}
+                                >
                                     Home
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/register" onMouseEnter={() => handleMouseEnter(3)} onMouseLeave={handleMouseLeave}>
+                                <a 
+                                    className="nav-link" 
+                                    href="#" 
+                                    onClick={(e) => { e.preventDefault(); scrollToSection('testimonials-section'); }} 
+                                    onMouseEnter={() => handleMouseEnter(3)} 
+                                    onMouseLeave={handleMouseLeave}
+                                >
                                     Reviews
-                                </Link>
+                                </a>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/login" onMouseEnter={() => handleMouseEnter(1)} onMouseLeave={handleMouseLeave}>
+                                <a 
+                                    className="nav-link" 
+                                    href="#" 
+                                    onClick={(e) => { e.preventDefault(); scrollToSection('about-section'); }} 
+                                    onMouseEnter={() => handleMouseEnter(1)} 
+                                    onMouseLeave={handleMouseLeave}
+                                >
                                     About Us
-                                </Link>
+                                </a>
                             </li>
                             
-                            <li className="nav-item " onMouseEnter={() => handleMouseEnter(4)} onMouseLeave={handleMouseLeave}>
+                            {/* Modified Services link to fix the error */}
+                            <li className="nav-item" onMouseEnter={() => handleMouseEnter(4)} onMouseLeave={handleMouseLeave}>
                                 <a
-                                    className="nav-link "
-                                    id="navbarDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded={dropdownOpen}
-                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className="nav-link"
+                                    href="#"
+                                    onClick={(e) => { 
+                                        e.preventDefault(); 
+                                        scrollToSection('services-section'); 
+                                    }}
                                 >
                                     Services
                                 </a>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/result" onMouseEnter={() => handleMouseEnter(2)} onMouseLeave={handleMouseLeave}>
+                                <a 
+                                    className="nav-link" 
+                                    href="#" 
+                                    onClick={(e) => { e.preventDefault(); scrollToSection('cleaning-checklist-section'); }} 
+                                    onMouseEnter={() => handleMouseEnter(2)} 
+                                    onMouseLeave={handleMouseLeave}
+                                >
                                     Checklists
-                                </Link>
+                                </a>
                             </li>
-                                    <li className="nav-item cta-desktop">
-                                        <button id='estimation' onClick={() => setIsPopupOpen(true)} className="open-btn">Get A Quote</button>
-                                    </li>
-                                    <li className="nav-item cta-desktop">
-                                        <button id='book'>
-                                            Book Now
-                                        </button>
-                                    </li>
-                                    <li className="nav-item cta-desktop">
-                                        <a href="tel:+1(647)913-7817">
-                                            <button id='phone'>
-                                                <i className="bi bi-telephone"></i> +1(647)913-7817
-                                            </button>
-                                        </a>
-                                    </li>
+                            <li className="nav-item cta-desktop">
+                                <button id='estimation' onClick={() => setIsPopupOpen(true)} className="open-btn">Get A Quote</button>
+                            </li>
+                            <li className="nav-item cta-desktop">
+                                <button id='book' onClick={navigateToBookingForm}>
+                                    Book Now
+                                </button>
+                            </li>
+                            <li className="nav-item cta-desktop">
+                                <a href="tel:+1(647)913-7817">
+                                    <button id='phone'>
+                                        <i className="bi bi-telephone"></i> +1(647)913-7817
+                                    </button>
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -124,7 +179,7 @@ function Navbar() {
                         <>
                             <div className="buttons-container">
                                 <button id='button1' onClick={() => setIsPopupOpen(true)} className="open-btn">Get A Quote</button>
-                                <button id="button2">Book Now</button>
+                                <button id="button2" onClick={navigateToBookingForm}>Book Now</button>
                                 <a href="tel:+1(647)913-7817">
                                     <button id="button3">Call</button>
                                 </a>

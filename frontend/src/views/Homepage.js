@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Homepage.css';
 import Slider from './Slider';
 import whip from './images/9.jpeg';
+import { useLocation } from 'react-router-dom';
 
 function Homepage() {
+  // Get location to check for scrollTo state parameter
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Check if we have a scrollTo parameter in the state
+    if (location.state && location.state.scrollTo) {
+      setTimeout(() => {
+        const element = document.getElementById(location.state.scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100); // Small delay to ensure component is mounted
+    }
+  }, [location]);
 
   // Cleaning categories and tasks for the checklist
   const cleaningData = {
@@ -63,7 +78,8 @@ function Homepage() {
 
   return (
     <div className="homepage-container">
-      <section className="hero-section">
+      {/* Add id to hero section */}
+      <section id="hero-section" className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">Luxury Clean – More Time for What Matters.</h1>
           <div className="hero-divider"></div>
@@ -71,13 +87,20 @@ function Homepage() {
             <p>A premium cleaning service designed for those who value their time.</p>        
             <p>We handle the cleaning, so you can focus on what truly matters—family, career, and relaxation.</p>
           </div>
-          <button className="cta-button">Book Your Service</button>
+          <button className="cta-button" onClick={() => {
+            // Use the same navigation function for consistency
+            window.location.href = '/bookingform';
+          }}>Book Your Service</button>
         </div>
       </section>
-      <section className="testimonials-section five">
+      
+      {/* Add id to testimonials section */}
+      <section id="testimonials-section" className="testimonials-section five">
         <Slider />
       </section>
-      <section className="about-section third">
+      
+      {/* Add id to about section */}
+      <section id="about-section" className="about-section third">
         <div className="about-content">
           <div className="about-text">
             <h1>Ready To Let The Professionals Do The Cleaning?</h1>
@@ -90,13 +113,14 @@ function Homepage() {
           </div>
         </div>
         <div className="cta-button">
-          <a href="#">
+          <a href="/bookingform">
             <button id="booknow">Book Now</button>
           </a>
         </div>
       </section>
 
-      <section className="services-section fourth">
+      {/* Add id to services section */}
+      <section id="services-section" className="services-section fourth">
         <h2 className="services-title">Professional House Cleaning and Maid Services</h2>
         <div className="services-grid">
           <div className="service-card">
@@ -134,7 +158,8 @@ function Homepage() {
         </div>
       </section>
 
-      <section className="cleaning-checklist-section" >
+      {/* Add id to cleaning checklist section */}
+      <section id="cleaning-checklist-section" className="cleaning-checklist-section">
         <h2 className="services-title" style={{ marginBottom: '30px', textAlign: 'center' }}>
           Cleaning Checklist
         </h2>
