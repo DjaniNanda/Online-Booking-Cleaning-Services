@@ -146,7 +146,7 @@
   
   /* Services Section */
   .services-section {
-    height: 215vh;
+    height: 125vh;
     color: rgb(32, 32, 32);
     background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
       url('./images/2.jpg') no-repeat center center/cover;

@@ -27,6 +27,11 @@ function PopupForm({ isOpen, setIsOpen }) {
 
   const [price, setPrice] = useState(null);
 
+   // Get the appropriate base URL from environment variables
+   const baseUrl = process.env.NODE_ENV === 'development' 
+  ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
+  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://online-booking-cleaning-services-27.onrender.com');
+
   // Handle form input change
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -48,7 +53,7 @@ function PopupForm({ isOpen, setIsOpen }) {
   // Get price estimate
   const getPrice = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/price-estimate/', {
+      const response = await fetch(`${baseUrl}/api/price-estimate/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +77,7 @@ function PopupForm({ isOpen, setIsOpen }) {
     
     try {
       // Send form data to Django backend
-      const response = await fetch('http://localhost:8000/api/quote-request/', {
+      const response = await fetch(`${baseUrl}/api/quote-request/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

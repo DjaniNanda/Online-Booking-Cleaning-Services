@@ -14,6 +14,9 @@ const BookingForm = () => {
   const [squareFeet, setSquareFeet] = useState('0 - 500 Sq.Ft');
   const [frequency, setFrequency] = useState('Every 2 Weeks(Discount 15%)');
   const [selectedAddons, setSelectedAddons] = useState([]);
+  const baseUrl = process.env.NODE_ENV === 'development' 
+  ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
+  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://online-booking-cleaning-services-27.onrender.com');
   // New state to track addon quantities
   const [addonQuantities, setAddonQuantities] = useState({});
   const [personalInfo, setPersonalInfo] = useState({
@@ -295,7 +298,7 @@ const BookingForm = () => {
       };
   
       // Send to backend
-      const response = await fetch('http://localhost:8000/api/booking/', {
+      const response = await fetch(`${baseUrl}/api/booking/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
