@@ -20,9 +20,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-#CORS_ALLOWED_ORIGINS = [
- #   "http://localhost:3000",  # Adjust if your frontend is hosted elsewhere
-#]
+CORS_ALLOWED_ORIGINS = [
+   "http://https://lovelyserenity.vercel.app/",  # Adjust if your frontend is hosted elsewhere
+]
 STORAGES = {
     
     "default":{
