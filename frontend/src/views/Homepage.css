@@ -11,8 +11,9 @@ body, html {
 }
 
 .homepage-container {
+  min-width: 122%;
   max-width: 200%;
-  margin: 0;
+  margin-left: -7.2rem;
   padding: 0;
   overflow-x: hidden;
 }
