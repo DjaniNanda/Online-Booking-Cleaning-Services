@@ -1,10 +1,13 @@
 /* Base styles and resets */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 .homepage-container {
     
-    width: 101.8vw;
-    overflow-x: hidden;
-    margin-left: -23.5vh;
-    padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
   }
   
   /* Hero Section */
@@ -12,7 +15,7 @@
     margin: 0;
     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
       url('./images/11.jpeg') no-repeat center center/cover;
-    height: 100vh;
+    min-height: 100vh;
     position: relative;
     color: white;
     display: flex;
@@ -80,7 +83,7 @@
   
   /* About Section */
   .about-section {
-    height: 125vh;
+    min-height: 100vh;
     padding: 100px 5%;
     width: 100%;
     margin: 0;
@@ -146,11 +149,11 @@
   
   /* Services Section */
   .services-section {
-    height: 125vh;
+    min-height: 100vh;
+    padding: 100px 5%;
     color: rgb(32, 32, 32);
     background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
       url('./images/2.jpg') no-repeat center center/cover;
-    padding: 60px 5%;
     text-align: center;
     width: 100%;
     box-sizing: border-box;
@@ -210,7 +213,7 @@
   .testimonials-section {
     color: white;
     background-color: rgb(32, 32, 32);
-    height: 145vh;
+    min-height: 145vh;
     position: relative;
     text-align: center;
     padding: 30px 0;
@@ -277,8 +280,8 @@
   /* Medium Devices (tablets, less than 992px) */
   @media (max-width: 992px) {
     .homepage-container{
-        width: 108%;
-        margin-left: -6vh;
+      width: 100%;
+      margin: 0;
     }
     .hero-title {
       font-size: 60px;
@@ -313,8 +316,8 @@
   /* Small Devices (landscape phones, less than 768px) */
   @media (max-width: 768px) {
     .homepage-container{
-        width: 111.5%;
-        margin-left: -6vh;
+      width: 100%;
+      margin: 0;
     }
     .hero-section {
       padding: 40px 30px;
@@ -374,8 +377,8 @@
   /* Extra Small Devices (phones, less than 576px) */
   @media (max-width: 576px) {
     .homepage-container{
-        width: 111.6%;
-        margin-left: -4vh;
+      width: 100%;
+      margin: 0;
     }
     .hero-section {
       height: 85vh;
