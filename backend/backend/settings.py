@@ -130,7 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Adjust if your frontend is hosted elsewhere
 ]
-
+STATIC_ROOT = BASE_DIR/'staticfiles'
 # Add REST framework settings (optional)
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
