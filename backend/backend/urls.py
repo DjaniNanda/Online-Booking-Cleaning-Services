@@ -1,8 +1,9 @@
-# urls.py in your project directory
-from django.contrib import admin
-from django.urls import path, include
+# urls.py in your app (e.g., cleaning_service/urls.py)
+from django.urls import path
+from .views import QuoteRequestView, PriceEstimateView,BookingView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')), 
+    path('quote-request/', QuoteRequestView.as_view(), name='quote-request'),
+    path('price-estimate/', PriceEstimateView.as_view(), name='price-estimate'),
+    path('booking/', BookingView.as_view(), name='booking'),
 ]
