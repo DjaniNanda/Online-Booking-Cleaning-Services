@@ -404,9 +404,9 @@ body, html {
 /* Extra Small Devices (phones, less than 576px) */
 @media (max-width: 576px) {
   .homepage-container {
-    min-width: 111.5%;
+    min-width: 111%;
     max-width: 200%;
-    margin-left: -1.77rem;
+    margin-left: -1.2rem;
     padding: 0;
     overflow-x: hidden;
   }
