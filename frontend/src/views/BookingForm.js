@@ -16,7 +16,7 @@ const BookingForm = () => {
   const [selectedAddons, setSelectedAddons] = useState([]);
   const baseUrl = process.env.NODE_ENV === 'development' 
   ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
-  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://online-booking-cleaning-services-27.onrender.com');
+  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com/');
   // New state to track addon quantities
   const [addonQuantities, setAddonQuantities] = useState({});
   const [personalInfo, setPersonalInfo] = useState({

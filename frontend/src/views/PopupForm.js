@@ -30,7 +30,7 @@ function PopupForm({ isOpen, setIsOpen }) {
    // Get the appropriate base URL from environment variables
    const baseUrl = process.env.NODE_ENV === 'development' 
   ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
-  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://online-booking-cleaning-services-27.onrender.com');
+  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com/');
 
   // Handle form input change
   const handleInputChange = (event) => {
