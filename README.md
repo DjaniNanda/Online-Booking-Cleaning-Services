@@ -1,5 +1,5 @@
-# Lovely Serenity Cleaning Services(website link:https://lovelyserenity.vercel.app/)
-<div align="center">
+# Lovely Serenity Cleaning Services
+<div align="center">website link:https://lovelyserenity.vercel.app/
   <h3>Professional Cleaning Services Across Ontario, Canada</h3>
   <p>✨ Trusted • Reliable • Thorough ✨</p>
 </div>
