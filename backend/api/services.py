@@ -54,9 +54,9 @@ class PriceCalculator:
     def calculate_discount(self, base_price, frequency):
         """Calculate discount based on frequency"""
         discount_rates = {
-            'EVERY_WEEK': Decimal('0.10'),
+            'EVERY_WEEK': Decimal('0.20'),
             'EVERY_2_WEEKS': Decimal('0.15'),
-            'EVERY_4_WEEKS': Decimal('0.20'),
+            'EVERY_4_WEEKS': Decimal('0.10'),
             'ONE_TIME': Decimal('0')
         }
         

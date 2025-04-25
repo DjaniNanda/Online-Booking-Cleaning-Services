@@ -11,9 +11,7 @@ body, html {
 }
 
 .homepage-container {
-  min-width: 123%;
-  max-width: 200%;
-  margin-left: -8rem;
+  width: 100%;
   padding: 0;
   overflow-x: hidden;
 }
@@ -311,12 +309,6 @@ body, html {
 
 /* Medium Devices (tablets, less than 992px) */
 @media (max-width: 992px) {
-  .homepage-container {
-    min-width: 106.3%;
-    max-width: 200%;
-    margin-left: -2rem;
-    padding: 0;
-  }
   .hero-title {
     font-size: 2.5rem;
   }
@@ -349,12 +341,6 @@ body, html {
 
 /* Small Devices (landscape phones, less than 768px) */
 @media (max-width: 768px) {
-  .homepage-container {
-    min-width: 110.2%;
-    max-width: 200%;
-    margin-left: -2.2rem;
-    padding: 0;
-  }
   .hero-section {
     padding: 40px 20px;
   }
@@ -406,13 +392,6 @@ body, html {
 
 /* Extra Small Devices (phones, less than 576px) */
 @media (max-width: 576px) {
-  .homepage-container {
-    min-width: 111%;
-    max-width: 200%;
-    margin-left: -1.2rem;
-    padding: 0;
-    overflow-x: hidden;
-  }
   .hero-section {
     padding: 30px 15px;
   }

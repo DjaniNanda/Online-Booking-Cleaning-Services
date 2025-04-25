@@ -81,9 +81,9 @@ const BookingForm = () => {
   ];
   
   const frequencyOptions = [
-    'Every 4 Weeks(Discount 20%)',
+    'Every 4 Weeks(Discount 10%)',
     'Every 2 Weeks(Discount 15%)',
-    'Every Week(Discount 10%)',
+    'Every Week(Discount 20%)',
     'One Time'
   ];
   
@@ -217,14 +217,14 @@ const BookingForm = () => {
     // Calculate discount based on frequency - exact string matching
     let discountRate = 0;
     switch (frequency) {
-      case 'Every Week(Discount 10%)':
-        discountRate = 0.10; // 10% discount
+      case 'Every Week(Discount 20%)':
+        discountRate = 0.20; // 20% discount
         break;
       case 'Every 2 Weeks(Discount 15%)':
         discountRate = 0.15; // 15% discount
         break;
       case 'Every 4 Weeks(Discount 20%)':
-        discountRate = 0.20; // 20% discount
+        discountRate = 0.10; // 10% discount
         break;
       default:
         discountRate = 0; // No discount for one-time service
@@ -441,10 +441,19 @@ const BookingForm = () => {
                       <div className="addon-details">
                         <div className="addon-name">{addon.name}</div>
                         <div className="addon-price">
-                          ${addon.variablePrice ? 
-                            `${addon.price}${addon.formula.includes('#bathrooms') ? ` + ${addon.formula.split('base + ')[1]}` : 
-                            addon.formula.includes('* #') ? ` per ${addon.formula.split('* #')[1]}` : ''}` : 
-                            addon.price}
+                          ${addon.id === 1 || addon.id === 2 ? 
+                            calculateAddonPrice(addon).toFixed(2) : 
+                            addon.variablePrice ? 
+                              addon.id === 11 ? 
+                                `${addon.price} per bedroom` : 
+                                addon.id === 3 ? 
+                                  `${addon.price} per fridge` : 
+                                  addon.id === 4 ? 
+                                    `${addon.price} per oven` : 
+                                    addon.id === 8 ? 
+                                      `${addon.price} per load` : 
+                                      addon.price 
+                              : addon.price}
                         </div>
                         {selectedAddons.includes(addon.id) && addon.variablePrice && 
                          ['Inside Fridge', 'Inside Oven', 'Laundry & Folding - Per Load'].includes(addon.name) && (
@@ -568,7 +577,7 @@ const BookingForm = () => {
                 </Col>
                 <Col md={3}>
                   <Form.Group>
-                    <Form.Label>State*</Form.Label>
+                    <Form.Label>Provinces/Territories*</Form.Label>
                     <Form.Control 
                       as="select"
                       value={address.state}
@@ -576,9 +585,19 @@ const BookingForm = () => {
                       required
                     >
                       <option value="">Select</option>
-                      <option value="IL">IL</option>
-                      <option value="IN">IN</option>
-                      <option value="WI">WI</option>
+                      <option value="Alberta">Alberta</option>
+                      <option value="British_Columbia">British Columbia</option>
+                      <option value="Manitoba">Manitoba</option>
+                      <option value="New_Brunswick">New Brunswick</option>
+                      <option value="Newfoundland_and_Labrador">Newfoundland and Labrador</option>
+                      <option value="Nova_Scotia">Nova Scotia</option>
+                      <option value="Ontario">Ontario</option>
+                      <option value="Prince_Edward_Island">Prince Edward Island</option>
+                      <option value="Quebec">Quebec</option>
+                      <option value="Saskatchewan">Saskatchewan</option>
+                      <option value="Northwest_Territories">Northwest Territories</option>
+                      <option value="Nunavut">Nunavut</option>
+                      <option value="Yukon">Yukon</option>
                     </Form.Control>
                   </Form.Group>
                 </Col>

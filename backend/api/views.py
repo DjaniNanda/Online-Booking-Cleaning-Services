@@ -23,7 +23,7 @@ class QuoteRequestView(APIView):
             # Calculate price before saving
             quote_request = serializer.save()  # Create instance but don't save yet
             
-            # Get the calculated price
+            # Get the calculated price using the service
             price = self.calculate_price(serializer.validated_data)
             
             # Save the calculated price
@@ -51,75 +51,130 @@ class QuoteRequestView(APIView):
     
     def calculate_price(self, data):
         """
-        Calculate cleaning price based on the formula:
-        Recurring Cleaning Price = 
-            (99 + 30 × [Square Footage/500] + 25 * [#bathroom + #bedroom]) + (Add-ons) - (Discounts)
+        Use PriceCalculator service to calculate the price without taxes
         """
-        # Extract basic data
+        calculator = PriceCalculator()
+        
+        # Extract data needed for calculation
         square_feet = data.get('squarefeet')
-        bedrooms = int(data.get('bedroom', 1))
-        bathrooms = int(data.get('bathroom', 1))
-        if bathrooms == 7:  # Handle "No Bathroom" case
-            bathrooms = 0
+        bedrooms = data.get('bedroom', '1')
+        bathrooms = data.get('bathroom', '1')
         frequency = data.get('frequency', 'onetime')
         
-        # Parse square footage
-        # Extract first number from range (e.g., "501 – 1000 Sq Ft" -> 501)
-        sq_ft_value = int(square_feet.split('–')[0].strip())
-        
-        # Base calculation
-        base_price = Decimal('99')
-        square_footage_factor = Decimal('30') * (Decimal(sq_ft_value) / Decimal('500'))
-        room_factor = Decimal('25') * (bedrooms + bathrooms)
+        # Map frequency values
+        frequency_mapping = {
+            'weekly': 'EVERY_WEEK',
+            'biweekly': 'EVERY_2_WEEKS',
+            'monthly': 'EVERY_4_WEEKS',
+            'onetime': 'ONE_TIME'
+        }
+        frequency_code = frequency_mapping.get(frequency, 'ONE_TIME')
         
         # Calculate base price
-        price = base_price + square_footage_factor + room_factor
+        base_price = calculator.calculate_base_price(bedrooms, bathrooms, square_feet)
         
-        # Add-ons
+        # Calculate add-ons price
+        addons_total = Decimal('0')
+        
+        # Handle bedrooms and bathrooms for addon calculations
+        try:
+            bedrooms_count = int(bedrooms)
+        except (ValueError, TypeError):
+            bedrooms_count = 1
+            
+        try:
+            bathrooms_count = int(bathrooms)
+            if bathrooms_count == 7:  # Handle "No Bathroom" case
+                bathrooms_count = 0
+        except (ValueError, TypeError):
+            bathrooms_count = 1
+        
+        # Add-ons calculations
         if data.get('deluxe_cleaning', False):
-            price += Decimal('49') + Decimal('15') * (bedrooms + bathrooms)
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'deluxe cleaning', 'base_price': Decimal('49'), 'variable_price': True}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('heavy_duty', False):
-            price += Decimal('49') + Decimal('5') * (bedrooms + bathrooms)
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'heavy duty', 'base_price': Decimal('49'), 'variable_price': True}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('inside_fridge', 0) > 0:
-            price += Decimal('35') * data.get('inside_fridge')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'inside fridge', 'base_price': Decimal('35'), 'variable_price': True}),
+                bedrooms_count,
+                bathrooms_count,
+                quantity=data.get('inside_fridge', 0)
+            )
             
         if data.get('inside_oven', 0) > 0:
-            price += Decimal('35') * data.get('inside_oven')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'inside oven', 'base_price': Decimal('35'), 'variable_price': True}),
+                bedrooms_count,
+                bathrooms_count,
+                quantity=data.get('inside_oven', 0)
+            )
             
         if data.get('inside_cabinets', False):
-            price += Decimal('49')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'inside cabinets', 'base_price': Decimal('49'), 'variable_price': False}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('load_dishwasher', False):
-            price += Decimal('15')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'load dishwasher', 'base_price': Decimal('15'), 'variable_price': False}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('handwash_dishes', False):
-            price += Decimal('25')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'handwash dishes', 'base_price': Decimal('25'), 'variable_price': False}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('laundry_folding', 0) > 0:
-            price += Decimal('25') * data.get('laundry_folding')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'laundry folding', 'base_price': Decimal('25'), 'variable_price': True}),
+                bedrooms_count,
+                bathrooms_count,
+                quantity=data.get('laundry_folding', 0)
+            )
             
         if data.get('eco_friendly', False):
-            price += Decimal('20')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'eco friendly', 'base_price': Decimal('20'), 'variable_price': False}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('pet_hair_fee', False):
-            price += Decimal('20')
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'pet hair fee', 'base_price': Decimal('20'), 'variable_price': False}),
+                bedrooms_count,
+                bathrooms_count
+            )
             
         if data.get('change_linen', False):
-            price += Decimal('10') * bedrooms
+            addons_total += calculator.calculate_addon_price(
+                type('AddonMock', (), {'name': 'change linen', 'base_price': Decimal('10'), 'variable_price': True}),
+                bedrooms_count,
+                bathrooms_count
+            )
         
-        # Apply discount based on frequency
-        discount = Decimal('0')
-        if frequency == 'weekly':
-            discount = price * Decimal('0.20')  # 20% discount
-        elif frequency == 'biweekly':
-            discount = price * Decimal('0.15')  # 15% discount
-        elif frequency == 'monthly':
-            discount = price * Decimal('0.10')  # 10% discount
+        # Calculate discount
+        discount = calculator.calculate_discount(base_price, frequency_code)
         
-        # Calculate final price
-        final_price = price - discount
+        # Calculate final price without taxes
+        final_price = base_price + addons_total - discount
         
         return round(final_price, 2)
     
@@ -128,8 +183,8 @@ class PriceEstimateView(APIView):
         # Create a temporary serializer to validate the data
         serializer = QuoteRequestSerializer(data=request.data)
         if serializer.is_valid():
-            # Calculate price
-            price = self.calculate_price(serializer.validated_data)
+            # Use the QuoteRequestView's calculate_price method to ensure consistency
+            price = QuoteRequestView().calculate_price(serializer.validated_data)
             
             # Return just the price
             return Response({
@@ -142,81 +197,6 @@ class PriceEstimateView(APIView):
             'message': 'Invalid data provided',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-    
-
-    def calculate_price(self,data):
-        """
-        Calculate cleaning price based on the formula:
-        Recurring Cleaning Price = 
-            (99 + 30 × [Square Footage/500] + 25 * [#bathroom + #bedroom]) + (Add-ons) - (Discounts)
-        """
-        # Extract basic data
-        square_feet = data.get('squarefeet')
-        bedrooms = int(data.get('bedroom', 1))
-        bathrooms = int(data.get('bathroom', 1))
-        if bathrooms == 7:  # Handle "No Bathroom" case
-            bathrooms = 0
-        frequency = data.get('frequency', 'onetime')
-        
-        # Parse square footage
-        # Extract first number from range (e.g., "501 – 1000 Sq Ft" -> 501)
-        sq_ft_value = int(square_feet.split('–')[0].strip())
-        
-        # Base calculation
-        base_price = Decimal('99')
-        square_footage_factor = Decimal('30') * (Decimal(sq_ft_value) / Decimal('500'))
-        room_factor = Decimal('25') * (bedrooms + bathrooms)
-        
-        # Calculate base price
-        price = base_price + square_footage_factor + room_factor
-        
-        # Add-ons
-        if data.get('deluxe_cleaning', False):
-            price += Decimal('49') + Decimal('15') * (bedrooms + bathrooms)
-            
-        if data.get('heavy_duty', False):
-            price += Decimal('49') + Decimal('5') * (bedrooms + bathrooms)
-            
-        if data.get('inside_fridge', 0) > 0:
-            price += Decimal('35') * data.get('inside_fridge')
-            
-        if data.get('inside_oven', 0) > 0:
-            price += Decimal('35') * data.get('inside_oven')
-            
-        if data.get('inside_cabinets', False):
-            price += Decimal('49')
-            
-        if data.get('load_dishwasher', False):
-            price += Decimal('15')
-            
-        if data.get('handwash_dishes', False):
-            price += Decimal('25')
-            
-        if data.get('laundry_folding', 0) > 0:
-            price += Decimal('25') * data.get('laundry_folding')
-            
-        if data.get('eco_friendly', False):
-            price += Decimal('20')
-            
-        if data.get('pet_hair_fee', False):
-            price += Decimal('20')
-            
-        if data.get('change_linen', False):
-            price += Decimal('10') * bedrooms
-        
-        # Apply discount based on frequency
-        discount = Decimal('0')
-        if frequency == 'weekly':
-            discount = price * Decimal('0.20')  # 20% discount
-        elif frequency == 'biweekly':
-            discount = price * Decimal('0.15')  # 15% discount
-        elif frequency == 'monthly':
-            discount = price * Decimal('0.10')  # 10% discount
-        
-        # Calculate final price
-        final_price = price - discount
-        
-        return round(final_price, 2)
 
 
 class BookingView(APIView):
