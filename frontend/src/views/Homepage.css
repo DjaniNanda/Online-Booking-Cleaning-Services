@@ -42,7 +42,7 @@ body, html {
 
 .hero-title {
   font-size: 3.5rem;
-  margin: 0 0 20px;
+  margin: 0 0 100px;
   font-weight: 700;
   line-height: 1.2;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
@@ -52,11 +52,14 @@ body, html {
   height: 3px;
   width: 100px;
   background-color: #fff;
-  margin: 30px auto;
+  margin-top: -30px;
+  margin-bottom: 30px;
+  margin-left: 380px;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-subtitle {
+  margin-top: -30px;
   margin-bottom: 40px;
 }
 
@@ -77,7 +80,7 @@ body, html {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 20px;
+  margin-top: 0px;
   display: inline-block;
 }
 
@@ -94,9 +97,9 @@ body, html {
 /* About Section */
 .about-section {
   min-height: 100vh;
-  padding: 80px 5%;
+  padding: 0px 5%;
   width: 100%;
-  margin: 0;
+  margin: 20px;
 }
 
 .about-content {
@@ -128,7 +131,7 @@ body, html {
   flex: 1;
   display: flex;
   justify-content: center;
-  min-width: 300px;
+  min-width: 250px;
 }
 
 #one {

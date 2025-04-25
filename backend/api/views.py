@@ -21,7 +21,7 @@ class QuoteRequestView(APIView):
         serializer = QuoteRequestSerializer(data=data)
         if serializer.is_valid():
             # Calculate price before saving
-            quote_request = serializer.save(commit=False)  # Create instance but don't save yet
+            quote_request = serializer.save()  # Create instance but don't save yet
             
             # Get the calculated price
             price = self.calculate_price(serializer.validated_data)

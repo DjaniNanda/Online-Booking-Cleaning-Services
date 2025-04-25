@@ -186,9 +186,31 @@ label[for]:not([for="apartmentSuite"]):not([for="textConsent"]):after {
   letter-spacing: 0.5px;
   box-shadow: 0 4px 10px rgba(34, 56, 96, 0.2);
 }
-
+.red-button {
+  background-color: #da1919;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  margin-top: 15px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(34, 56, 96, 0.2);
+}
 .submit-button:hover {
   background-color: #152540;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(34, 56, 96, 0.3);
+}
+.red-button:hover {
+  background-color: #f30909;
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(34, 56, 96, 0.3);
 }
@@ -204,7 +226,7 @@ label[for]:not([for="apartmentSuite"]):not([for="textConsent"]):after {
   transition: transform 0.2s;
 }
 
-.submit-button:hover .arrow {
+.submit-button:hover,.red-button:hover, .arrow {
   transform: translateX(3px);
 }
 /* Add to your existing CSS */

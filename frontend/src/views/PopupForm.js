@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PopupForm.css';
 
 function PopupForm({ isOpen, setIsOpen }) {
@@ -26,11 +26,59 @@ function PopupForm({ isOpen, setIsOpen }) {
   });
 
   const [price, setPrice] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isPriceLoading, setIsPriceLoading] = useState(false);
 
-   // Get the appropriate base URL from environment variables
-   const baseUrl = process.env.NODE_ENV === 'development' 
-  ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
-  : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
+  // Get the appropriate base URL from environment variables
+  const baseUrl = process.env.NODE_ENV === 'development' 
+    ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
+    : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
+
+  // Fetch price estimate whenever form data changes
+  useEffect(() => {
+    // Create a debounce function to prevent too many API calls
+    const debounce = setTimeout(() => {
+      fetchPriceEstimate();
+    }, 500); // Wait 500ms after last change before fetching
+
+    return () => clearTimeout(debounce); // Cleanup timeout on component unmount or form data change
+  }, [formData]);
+
+  // Function to fetch price estimate
+  const fetchPriceEstimate = async () => {
+    // Only fetch price if we have the minimum required data
+    if (!formData.frequency || !formData.squarefeet || !formData.bedroom || !formData.bathroom) {
+      return;
+    }
+
+    setIsPriceLoading(true);
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/price-estimate/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setPrice(result.price);
+      } else {
+        console.error('Error getting price:', result);
+        // Don't show error message for automatic price updates
+      }
+    } catch (error) {
+      console.error('Error fetching price estimate:', error);
+      // Don't show error message for automatic price updates
+    } finally {
+      setIsPriceLoading(false);
+    }
+  };
 
   // Handle form input change
   const handleInputChange = (event) => {
@@ -50,34 +98,26 @@ function PopupForm({ isOpen, setIsOpen }) {
     }));
   };
 
-  // Get price estimate
-  const getPrice = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/api/price-estimate/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok) {
-        setPrice(result.price);
-      }
-    } catch (error) {
-      console.error('Error getting price estimate:', error);
-    }
-  };
-
-  // handleSubmit
-  const handleSubmit = async (e) => {
+  // Submit form - now just handles the quote submission
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    setErrorMessage("");
+    
+    // Validate required fields
+    if (!formData.firstname || !formData.lastname || !formData.email || !formData.phone) {
+      setErrorMessage("Please fill all required fields (*) before submitting");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Send form data to Django backend
-      const response = await fetch(`${baseUrl}/api/quote-request/`, {
+      // Send quote request
+      const quoteResponse = await fetch(`${baseUrl}/api/quote-request/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,20 +125,19 @@ function PopupForm({ isOpen, setIsOpen }) {
         body: JSON.stringify(formData),
       });
       
-      const result = await response.json();
-      
-      if (response.ok) {
-        console.log('Success:', result);
-        // Close the popup or show success message
-        setIsOpen(false);
-        // You might want to show a success message to the user
+      // Process quote response
+      const quoteResult = await quoteResponse.json();
+      if (quoteResponse.ok) {
+        setIsSubmitted(true);
       } else {
-        console.error('Error:', result);
-        // Handle validation errors or other issues
+        console.error('Error submitting quote:', quoteResult);
+        setErrorMessage("Failed to submit your request. Please try again.");
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      // Handle network errors
+      console.error('Error processing request:', error);
+      setErrorMessage("Connection error. Please check your internet and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -122,11 +161,10 @@ function PopupForm({ isOpen, setIsOpen }) {
         </button>
         
         <h2 className="form-title">Let's get started!</h2>
-
-        <form onSubmit={handleSubmit}>
-        <div className="form-row">
+        <form onSubmit={handleFormSubmit}>
+          <div className="form-row">
             <div className="form-group half">
-              <label htmlFor="firstname">First Name*</label>
+              <label htmlFor="firstname">First Name</label>
               <input
                 type="text"
                 id="firstName"
@@ -139,7 +177,7 @@ function PopupForm({ isOpen, setIsOpen }) {
               />
             </div>
             <div className="form-group half">
-              <label htmlFor="lastname">Last Name*</label>
+              <label htmlFor="lastname">Last Name</label>
               <input
                 type="text"
                 id="lastName"
@@ -155,7 +193,7 @@ function PopupForm({ isOpen, setIsOpen }) {
 
           <div className="form-row">
             <div className="form-group half">
-              <label htmlFor="email">Email*</label>
+              <label htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
@@ -168,7 +206,7 @@ function PopupForm({ isOpen, setIsOpen }) {
               />
             </div>
             <div className="form-group half">
-              <label htmlFor="phone1">Phone number*</label>
+              <label htmlFor="phone1">Phone number</label>
               <input
                 type="tel"
                 id="phone1"
@@ -184,7 +222,7 @@ function PopupForm({ isOpen, setIsOpen }) {
 
           <div className="form-row">
             <div className="form-group half">
-              <label htmlFor="frequency">Frequency*</label>
+              <label htmlFor="frequency">Frequency</label>
               <select
                 id="frequency"
                 name="frequency"
@@ -192,15 +230,14 @@ function PopupForm({ isOpen, setIsOpen }) {
                 onChange={handleInputChange}
                 required
               >
-              
-              <option value="weekly">Every 1 Week(discount 20%)</option>
-              <option value="biweekly">Every 2 Week(discount 15%)</option>
-              <option value="monthly">Every 4 Week(discount 10%)</option>
-              <option value="onetime">One Time(Deep)</option>
+                <option value="weekly">Every 1 Week (discount 20%)</option>
+                <option value="biweekly">Every 2 Week (discount 15%)</option>
+                <option value="monthly">Every 4 Week (discount 10%)</option>
+                <option value="onetime">One Time (Deep)</option>
               </select>
             </div>
             <div className="form-group half">
-              <label htmlFor="squarefeet">Square Feet*</label>
+              <label htmlFor="squarefeet">Square Feet</label>
               <select
                 id="squarefeet"
                 name="squarefeet"
@@ -229,7 +266,7 @@ function PopupForm({ isOpen, setIsOpen }) {
           </div>
           <div className="form-row">
             <div className="form-group half">
-              <label htmlFor="bedroom">Bedroom*</label>
+              <label htmlFor="bedroom">Bedroom</label>
               <select
                 id="bedroom"
                 name="bedroom"
@@ -237,17 +274,16 @@ function PopupForm({ isOpen, setIsOpen }) {
                 onChange={handleInputChange}
                 required
               >
-              
-              <option value="1">One Bedroom</option>
-              <option value="2">Two Bedroom</option>
-              <option value="3">Three Bedroom</option>
-              <option value="4">Four Bedroom</option>
-              <option value="5">Five Bedroom</option>
-              <option value="6">six Bedroom</option>
+                <option value="1">One Bedroom</option>
+                <option value="2">Two Bedroom</option>
+                <option value="3">Three Bedroom</option>
+                <option value="4">Four Bedroom</option>
+                <option value="5">Five Bedroom</option>
+                <option value="6">Six Bedroom</option>
               </select>
             </div>
             <div className="form-group half">
-              <label htmlFor="bathroom">Bathroom*</label>
+              <label htmlFor="bathroom">Bathroom</label>
               <select
                 id="bathroom"
                 name="bathroom"
@@ -260,11 +296,11 @@ function PopupForm({ isOpen, setIsOpen }) {
                 <option value="3">Three Bathroom</option>
                 <option value="4">Four Bathroom</option>
                 <option value="5">Five Bathroom</option>
-                <option value="6">six Bathroom</option>
+                <option value="6">Six Bathroom</option>
                 <option value="7">No Bathroom</option>
               </select>
-              </div>
             </div>
+          </div>
           
           {/* Add-ons section */}
           <h3 className="section-title">Additional Services</h3>
@@ -410,26 +446,32 @@ function PopupForm({ isOpen, setIsOpen }) {
               </label>
             </div>
           </div>
-          <div className="form-row"> 
-            <div className="form-group half">
-              <button type="button" className="price-button" onClick={getPrice}>
-                Calculate Price
-              </button>
+          
+          <div className="form-row">
+            <div className="form-group full">
+              {!isSubmitted ? (
+                <button 
+                  type="submit" 
+                  className="submit-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Processing..." : "Calculate Price"}
+                </button>
+              ) : (
+                <div className="price-estimate success-message">
+                  <h3>Estimated Price: ${price}</h3>
+                </div>
+              )}
             </div>
-            <div className="form-group half">
-              <button type="submit" className="submit-button" onClick={handleClose}>
+          </div>
+          <div className="form-group full">
+              <button type="submit" className="red-button" onClick={handleClose}>
                 Close
               </button>
             </div>
-          </div>
         </form>
                 
-        {price && (
-          <div className="price-estimate">
-            <h3>Estimated Price: ${price}</h3>
-          </div>
-        )}
-        
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
       </div>
     </div>
   );
