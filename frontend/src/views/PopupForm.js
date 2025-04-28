@@ -30,6 +30,7 @@ function PopupForm({ isOpen, setIsOpen }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isPriceLoading, setIsPriceLoading] = useState(false);
+  const [quoteDate, setQuoteDate] = useState(null);
 
   // Get the appropriate base URL from environment variables
   const baseUrl = process.env.NODE_ENV === 'development' 
@@ -99,9 +100,8 @@ function PopupForm({ isOpen, setIsOpen }) {
   };
 
   // Submit form - now just handles the quote submission
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    
+const handleFormSubmit = async (e) => {
+  e.preventDefault();
     // Prevent multiple submissions
     if (isSubmitting) return;
     
@@ -129,6 +129,11 @@ function PopupForm({ isOpen, setIsOpen }) {
       const quoteResult = await quoteResponse.json();
       if (quoteResponse.ok) {
         setIsSubmitted(true);
+        // Store the creation date if you need to display it
+        if (quoteResult.date_created) {
+          // You could add a state variable for this if needed
+          setQuoteDate(quoteResult.date_created);
+        }
       } else {
         console.error('Error submitting quote:', quoteResult);
         setErrorMessage("Failed to submit your request. Please try again.");

@@ -1,13 +1,15 @@
-
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import QuoteRequest,Customer, Address, Booking, AddonOption, BookingAddon
-from .serializers import QuoteRequestSerializer,BookingSerializer
+from .models import QuoteRequest, Customer, Address, Booking, AddonOption, BookingAddon
+from .serializers import QuoteRequestSerializer, BookingSerializer
 from decimal import Decimal
 from django.contrib.auth.models import User
 from django.db import transaction
 from .services import PriceCalculator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.html import strip_tags
 
 class QuoteRequestView(APIView):
     def post(self, request):
@@ -30,16 +32,21 @@ class QuoteRequestView(APIView):
             quote_request.calculated_price = price
             quote_request.save()
             
-            # Add price to the response
+            # Add price and creation date to the response
             response_data = serializer.data
             response_data['calculated_price'] = price
+            response_data['date_created'] = quote_request.date_created.strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Send email notification
+            self.send_quote_request_email(quote_request, price)
             
             # Return success response
             return Response({
                 'status': 'success',
                 'message': 'Quote request received successfully',
                 'data': response_data,
-                'price': price  # Include price separately for clarity
+                'price': price,  # Include price separately for clarity
+                'date_created': quote_request.date_created.strftime('%Y-%m-%d %H:%M:%S')  # Include creation date/time
             }, status=status.HTTP_201_CREATED)
         
         # Return error response if validation fails
@@ -49,10 +56,183 @@ class QuoteRequestView(APIView):
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
     
+    def send_quote_request_email(self, quote_request, price):
+        """
+        Send an email notification with the quote request details
+        """
+        subject = f'New Quote Request #{quote_request.id}'
+        
+        # Create format helper function for addons
+        def format_title(text):
+            return text.replace('_', ' ').title()
+        
+        # Get all available add-ons
+        addons = {
+            'deluxe_cleaning': quote_request.deluxe_cleaning,
+            'heavy_duty': quote_request.heavy_duty,
+            'inside_fridge': quote_request.inside_fridge,
+            'inside_oven': quote_request.inside_oven,
+            'inside_cabinets': quote_request.inside_cabinets,
+            'load_dishwasher': quote_request.load_dishwasher,
+            'handwash_dishes': quote_request.handwash_dishes,
+            'laundry_folding': quote_request.laundry_folding,
+            'eco_friendly': quote_request.eco_friendly,
+            'pet_hair_fee': quote_request.pet_hair_fee,
+            'change_linen': quote_request.change_linen,
+        }
+        
+        # Filter to only selected addons
+        selected_addons = {k: v for k, v in addons.items() if v}
+        
+        # Generate addon rows for HTML
+        addon_rows = ""
+        for name, value in selected_addons.items():
+            addon_rows += f"""
+                <tr>
+                    <th>{format_title(name)}:</th>
+                    <td>{value}</td>
+                </tr>
+            """
+        
+        # If no addons were selected
+        if not addon_rows:
+            addon_rows = "<tr><td colspan='2'>No add-ons selected</td></tr>"
+        
+        # Create HTML message directly in the code
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background-color: #f8f9fa; padding: 15px; border-bottom: 3px solid #007bff; }}
+                .section {{ margin-bottom: 20px; }}
+                h1 {{ color: #007bff; }}
+                table {{ width: 100%; border-collapse: collapse; }}
+                th, td {{ padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }}
+                .price {{ font-weight: bold; color: #28a745; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>New Quote Request #{quote_request.id}</h1>
+                </div>
+                
+                <div class="section">
+                    <h2>Customer Information</h2>
+                    <table>
+                        <tr>
+                            <th>Name:</th>
+                            <td>{quote_request.firstname} {quote_request.lastname}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{quote_request.email}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td>{quote_request.phone}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Service Details</h2>
+                    <table>
+                        <tr>
+                            <th>Bedrooms:</th>
+                            <td>{quote_request.bedroom}</td>
+                        </tr>
+                        <tr>
+                            <th>Bathrooms:</th>
+                            <td>{quote_request.bathroom}</td>
+                        </tr>
+                        <tr>
+                            <th>Square Feet:</th>
+                            <td>{quote_request.squarefeet}</td>
+                        </tr>
+                        <tr>
+                            <th>Frequency:</th>
+                            <td>{quote_request.frequency}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Selected Add-ons</h2>
+                    <table>
+                        {addon_rows}
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Price Information</h2>
+                    <table>
+                        <tr>
+                            <th>Calculated Price:</th>
+                            <td class="price">${price}</td>
+                        </tr>
+                        <tr>
+                            <th>Date Created:</th>
+                            <td>{quote_request.date_created.strftime('%Y-%m-%d %H:%M:%S')}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Create plain text version
+        plain_message = f"""
+        New Quote Request #{quote_request.id}
+        
+        CUSTOMER INFORMATION:
+        Name: {quote_request.firstname} {quote_request.lastname}
+        Email: {quote_request.email}
+        Phone: {quote_request.phone}
+        
+        SERVICE DETAILS:
+        Bedrooms: {quote_request.bedroom}
+        Bathrooms: {quote_request.bathroom}
+        Square Feet: {quote_request.squarefeet}
+        Frequency: {quote_request.frequency}
+        
+        SELECTED ADD-ONS:
+        """
+        
+        for name, value in selected_addons.items():
+            plain_message += f"- {format_title(name)}: {value}\n"
+        
+        if not selected_addons:
+            plain_message += "No add-ons selected\n"
+        
+        plain_message += f"""
+        PRICE INFORMATION:
+        Calculated Price: ${price}
+        Date Created: {quote_request.date_created.strftime('%Y-%m-%d %H:%M:%S')}
+        """
+        
+        # Send email
+        try:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['djaninandapetrus@gmail.com'],
+                html_message=html_message,
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Failed to send email: {str(e)}")
+    
     def calculate_price(self, data):
         """
         Use PriceCalculator service to calculate the price without taxes
         """
+        # Keep the original calculate_price method unchanged
         calculator = PriceCalculator()
         
         # Extract data needed for calculation

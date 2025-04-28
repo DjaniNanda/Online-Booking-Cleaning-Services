@@ -4,9 +4,9 @@ from .models import QuoteRequest,AddonOption
 
 @admin.register(QuoteRequest)
 class QuoteRequestAdmin(admin.ModelAdmin):
-    list_display = ['firstname', 'lastname', 'email', 'phone', 'frequency', 'squarefeet', 'bedroom', 'bathroom', 'created_at']
+    list_display = ['firstname', 'lastname', 'email', 'phone', 'frequency', 'squarefeet', 'bedroom', 'bathroom', 'date_created']
     search_fields = ['firstname', 'lastname', 'email', 'phone']
-    list_filter = ['frequency', 'bedroom', 'bathroom', 'created_at']
+    list_filter = ['frequency', 'bedroom', 'bathroom', 'date_created']
 
 @admin.register(AddonOption)
 class AddonOptionAdmin(admin.ModelAdmin):
