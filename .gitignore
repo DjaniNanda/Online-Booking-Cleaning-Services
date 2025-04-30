@@ -14,7 +14,13 @@ db.sqlite3
 .DS_Store
 #
 /build
-
+# SMTP configuration files
+smtp.config.js
+email.config.js
+mail.config.js
+smtp-config.*
+email-config.*
+mail-config.*
 
 # testing
 /coverage
