@@ -1,27 +1,88 @@
-/* Base styles and resets */
-*, *::before, *::after {
+/* Base Styles */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   width: 100%;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
+  scroll-behavior: smooth;
 }
-
 .homepage-container {
   width: 100%;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+section {
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Hero Section */
 .hero-section {
+  overflow-x: hidden !important;
   margin: 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
-    url('./images/11.jpeg') no-repeat center center/cover;
-  min-height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url("./images/11.jpeg") no-repeat center center /
+    cover;
+  min-height: 90vh;
   position: relative;
   color: white;
   display: flex;
@@ -29,40 +90,46 @@ body, html {
   justify-content: center;
   text-align: center;
   width: 100%;
+  transform: translateY(20px);
+}
+
+.hero-section.visible {
+  animation: fadeIn 1.2s ease-out forwards;
 }
 
 .hero-content {
   max-width: 900px;
   padding: 0 20px;
-  animation: fadeIn 1.5s ease-in-out;
   width: 100%;
+  z-index: 2;
+  margin-top: -100px;
 }
 
 .hero-title {
-  font-size: 3.5rem;
-  margin: 0 0 100px;
+  font-size: 4rem;
+  margin: 0 0 80px;
   font-weight: 700;
   line-height: 1.2;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1.5s ease-in-out;
 }
 
 .hero-divider {
-  height: 3px;
-  width: 100px;
-  background-color: #fff;
-  margin-top: -30px;
-  margin-bottom: 30px;
-  margin-left: 380px;
+  height: 4px;
+  width: 120px;
+  background-color: rgb(253, 219, 26);
+  margin: -30px auto 40px;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 1.8s ease-in-out;
 }
 
 .hero-subtitle {
-  margin-top: -30px;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
+  animation: fadeIn 2s ease-in-out;
 }
 
 .hero-subtitle p {
-  margin: 13px 0;
+  margin: 15px 0;
   font-size: 1.5rem;
   font-weight: 300;
   line-height: 1.5;
@@ -71,33 +138,143 @@ body, html {
 
 .cta-button {
   background-color: transparent;
-  border: 2px solid white;
-  color: white;
-  padding: 15px 30px;
-  font-size: 1rem;
+  border: 2px solid rgb(253, 219, 26);
+  color: rgb(253, 219, 26);
+  padding: 16px 36px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 0px;
+  border-radius: 50px;
   display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: fadeIn 2.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.cta-button:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background-color: rgb(253, 219, 26);
+  transition: all 0.4s ease;
+  z-index: -1;
 }
 
 .cta-button:hover {
-  background-color: white;
   color: #000;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.cta-button:hover:before {
+  width: 100%;
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 3s ease-in-out;
+}
+
+.mouse {
+  width: 30px;
+  height: 50px;
+  border: 2px solid white;
+  border-radius: 20px;
+  position: relative;
+}
+
+.wheel {
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: wheel 1.5s infinite;
+}
+
+@keyframes wheel {
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 20px);
+    opacity: 0;
+  }
+}
+
+.arrow-down {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.arrow-down span {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-bottom: 2px solid white;
+  border-right: 2px solid white;
+  transform: rotate(45deg);
+  margin: -8px 0;
+  animation: arrow 1.5s infinite;
+}
+
+.arrow-down span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.arrow-down span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes arrow {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-10px, -10px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(45deg) translate(10px, 10px);
+  }
 }
 
 /* About Section */
 .about-section {
+  overflow-x: hidden !important;
   min-height: 100vh;
-  padding: 0px 5%;
+  padding: 100px 5%;
   width: 100%;
-  margin: 20px;
+  background-color: #fff;
+  color: #333;
+  transform: translateY(30px);
+}
+
+.about-section.visible .about-text {
+  animation: slideInLeft 1s ease-out forwards;
+}
+
+.about-section.visible .about-image {
+  animation: slideInRight 1s ease-out forwards;
 }
 
 .about-content {
@@ -105,7 +282,7 @@ body, html {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 30px;
+  gap: 50px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -113,23 +290,40 @@ body, html {
 .about-text {
   flex: 1;
   min-width: 300px;
+  opacity: 0;
 }
 
 .about-text h1 {
-  font-size: 2.25rem;
-  margin-bottom: 25px;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  color: #222;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.about-text h1:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background-color: rgb(253, 219, 26);
 }
 
 .about-text p {
-  line-height: 1.6;
-  margin-bottom: 20px;
+  line-height: 1.8;
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+  color: #555;
 }
 
 .about-image {
   flex: 1;
   display: flex;
   justify-content: center;
-  min-width: 250px;
+  min-width: 300px;
+  opacity: 0;
 }
 
 #one {
@@ -138,55 +332,97 @@ body, html {
   width: 100%;
   height: auto;
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 5px solid rgb(253, 219, 26);
   object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
-.about-section .cta-button {
+#one:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.cta-container {
   display: flex;
   justify-content: center;
   max-width: 1400px;
-  margin: 40px auto 0;
+  margin: 60px auto 0;
 }
 
-#booknow {
-  margin: 20px 0;
+.book-now-button {
+  margin: 0;
   color: #ffffff;
-  background-color: rgb(2, 2, 2);
-  width: 180px;
-  height: 50px;
+  background-color: #222;
+  width: 220px;
+  height: 60px;
   border: none;
-  border-radius: 60px;
-  transition: all 0.3s;
+  border-radius: 50px;
+  transition: all 0.4s;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
 
-#booknow:hover {
-  background-color: rgb(252, 3, 3);
+.book-now-button:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background-color: rgb(253, 219, 26);
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+
+.book-now-button:hover {
+  color: #000;
+}
+
+.book-now-button:hover:before {
+  width: 100%;
 }
 
 /* Services Section */
 .services-section {
+  overflow-x: hidden !important;
   min-height: 110vh;
-  color: rgb(32, 32, 32);
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)),
-    url('./images/2.jpg') no-repeat center center/cover;
-  padding: 80px 5%;
+  color: white;
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("./images/2.jpg") no-repeat center center /
+    cover;
+  padding: 100px 5%;
   text-align: center;
   width: 100%;
+  transform: translateY(30px);
+}
+
+.services-section.visible .services-title {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.services-section.visible .service-card {
+  animation: scaleIn 1s ease-out forwards;
+  animation-delay: calc(var(--card-index) * 0.1s);
 }
 
 .services-title {
-  font-size: 3rem;
-  margin-bottom: 50px;
+  font-size: 3.5rem;
+  margin-bottom: 70px;
+  color: rgb(253, 219, 26);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  opacity: 0;
 }
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto 60px;
@@ -194,99 +430,158 @@ body, html {
 
 .service-card {
   color: rgb(253, 219, 26);
-  background-color: rgb(32, 32, 32);
+  background-color: rgba(32, 32, 32, 0.8);
   border-radius: 20px;
-  padding: 30px 20px;
+  padding: 40px 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  min-height: 220px;
   border: 3px solid transparent;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
+  opacity: 0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
 }
 
-.service-card i {
+.service-icon {
   font-size: 40px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  width: 50px;
+  height: 50px;
+  color: rgb(253, 219, 26);
 }
 
 .service-card p {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 500;
+  margin-top: 10px;
 }
 
 .service-card:hover {
   cursor: pointer;
-  border-color: #686767;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 1);
-  transform: translateY(-5px);
+  border-color: rgb(253, 219, 26);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-10px);
+  background-color: rgba(40, 40, 40, 0.9);
 }
 
-.learn-more i {
+.learn-more .service-icon {
   margin-top: 10px;
   font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.learn-more:hover .service-icon {
+  transform: translateX(10px);
 }
 
 /* Testimonials Section */
 .testimonials-section {
+  overflow-x: hidden !important;
   color: white;
   background-color: rgb(32, 32, 32);
   min-height: 100vh;
   position: relative;
   text-align: center;
-  padding: 60px 0;
+  padding: 100px 0;
   width: 100%;
+  transform: translateY(30px);
 }
 
 /* Cleaning Checklist Section */
 .cleaning-checklist-section {
   background-color: rgb(32, 32, 32);
-  color: white;
-  padding: 60px 5%;
+  color: white !important;
+  padding: 100px 5%;
+  overflow-x: hidden !important;
   width: 100%;
+  transform: translateY(30px);
 }
 
-.cleaning-checklist-section .services-title {
-  margin-bottom: 30px;
+.cleaning-checklist-section.visible .checklist-title {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.cleaning-checklist-section.visible .checklist-container {
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
+.checklist-title {
+  font-size: 3.5rem;
+  margin-bottom: 50px;
   text-align: center;
+  color: rgb(253, 219, 26);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  opacity: 0;
 }
 
-.cleaning-checklist-section table {
+.checklist-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow-x: auto;
+  opacity: 0;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background-color: rgba(40, 40, 40, 0.7);
+  padding: 20px;
+}
+
+.checklist-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 auto;
-  max-width: 1400px;
+  border-spacing: 0;
 }
 
-.cleaning-checklist-section th {
-  padding: 10px;
+.checklist-table th {
+  padding: 15px;
   text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.checklist-table td {
+  color: white ;
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.cleaning-checklist-section th:first-child {
+.task-column {
   text-align: left;
   width: 30%;
 }
 
-.cleaning-checklist-section td {
-  color: white;
-  padding: 10px;
-  border-top: 1px solid #444;
+.service-column {
+  background-color: rgb(253, 219, 26);
+  color: black;
+  font-weight: bold;
+  padding: 15px 10px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
 }
 
-.cleaning-checklist-section td:not(:first-child) {
-  text-align: center;
+.category-row td {
+  padding: 20px 15px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  background-color: rgba(253, 219, 26, 0.1);
+  color: rgb(253, 219, 26) !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.task-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.task-name {
+  text-align: left;
+  font-weight: 500;
 }
 
 .text-xs {
   font-size: 0.75rem;
-}
-
-.overflow-x-auto {
-  overflow-x: auto;
-  width: 100%;
-  max-width: 100%;
 }
 
 /* Responsive Breakpoints */
@@ -294,48 +589,59 @@ body, html {
 /* Large Devices (desktops, less than 1200px) */
 @media (max-width: 1200px) {
   .hero-title {
-    font-size: 3rem;
+    font-size: 3.5rem;
   }
-  
+
   #one {
     max-height: 400px;
     max-width: 400px;
   }
-  
-  .services-title {
-    font-size: 2.5rem;
+
+  .services-title,
+  .checklist-title {
+    font-size: 3rem;
+  }
+
+  .service-card {
+    padding: 35px 20px;
   }
 }
 
 /* Medium Devices (tablets, less than 992px) */
 @media (max-width: 992px) {
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
   }
-  
+
   .hero-subtitle p {
     font-size: 1.25rem;
   }
-  
-  .services-title {
-    font-size: 2.25rem;
+
+  .services-title,
+  .checklist-title {
+    font-size: 2.5rem;
   }
-  
+
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
   }
-  
+
   .about-section {
-    padding: 60px 5%;
+    padding: 80px 5%;
   }
-  
+
   #one {
     max-height: 350px;
     max-width: 350px;
   }
-  
+
   .cleaning-checklist-section {
-    padding: 40px 3%;
+    padding: 80px 3%;
+  }
+
+  .service-card p {
+    font-size: 1.2rem;
   }
 }
 
@@ -344,49 +650,65 @@ body, html {
   .hero-section {
     padding: 40px 20px;
   }
-  
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
+    margin-bottom: 50px;
   }
-  
+
   .hero-subtitle {
     margin-top: 20px;
   }
-  
+
   .hero-subtitle p {
     font-size: 1rem;
   }
-  
+
   .about-content {
     flex-direction: column;
   }
-  
+
   .about-text {
     order: 2;
   }
-  
+
   .about-image {
     order: 1;
     margin-bottom: 30px;
   }
-  
+
   #one {
     max-height: 300px;
     max-width: 300px;
   }
-  
-  .services-title {
+
+  .services-title,
+  .checklist-title {
     font-size: 2rem;
   }
-  
+
   .service-card {
     min-height: 180px;
+    padding: 30px 15px;
   }
-  
-  .cleaning-checklist-section th,
-  .cleaning-checklist-section td {
-    padding: 8px 5px;
-    font-size: 0.875rem;
+
+  .service-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .checklist-table th,
+  .checklist-table td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+
+  .category-row td {
+    font-size: 1rem;
+  }
+
+  .scroll-indicator {
+    display: none;
   }
 }
 
@@ -395,66 +717,101 @@ body, html {
   .hero-section {
     padding: 30px 15px;
   }
-  
+
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
+    margin-bottom: 40px;
   }
-  
+
+  .hero-divider {
+    width: 80px;
+    margin-bottom: 30px;
+  }
+
   .hero-subtitle p {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
   }
-  
+
+  .cta-button {
+    padding: 12px 25px;
+    font-size: 0.9rem;
+  }
+
   .about-section {
-    padding: 40px 15px;
+    padding: 60px 15px;
   }
-  
+
   .about-text h1 {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
     text-align: center;
   }
-  
+
+  .about-text h1:after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .about-text p {
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
   #one {
     max-height: 250px;
     max-width: 250px;
   }
-  
+
   .services-section {
-    padding: 40px 15px;
+    padding: 60px 15px;
   }
-  
-  .services-title {
-    font-size: 1.75rem;
+
+  .services-title,
+  .checklist-title {
+    font-size: 1.8rem;
   }
-  
+
   .services-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .service-card {
     min-height: 150px;
     padding: 25px 15px;
   }
-  
-  .service-card i {
-    font-size: 30px;
+
+  .service-icon {
+    width: 35px;
+    height: 35px;
+    margin-bottom: 15px;
   }
-  
+
   .service-card p {
     font-size: 1rem;
   }
-  
+
   .cleaning-checklist-section {
-    padding: 30px 10px;
+    padding: 60px 10px;
   }
-  
-  .cleaning-checklist-section th,
-  .cleaning-checklist-section td {
-    padding: 6px 3px;
+
+  .checklist-table th,
+  .checklist-table td {
+    padding: 8px 5px;
     font-size: 0.75rem;
   }
-  
+
+  .category-row td {
+    font-size: 0.9rem;
+    padding: 12px 5px;
+  }
+
   .text-xs {
     font-size: 0.65rem;
+  }
+
+  .book-now-button {
+    width: 180px;
+    height: 50px;
+    font-size: 0.9rem;
   }
 }
