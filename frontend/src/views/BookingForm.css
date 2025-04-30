@@ -14,6 +14,7 @@ body {
 .booking-container {
   padding: 2rem 1rem;
   max-width: 1200px;
+  overflow-y: auto !important;
 }
 
 h1, h3 {
@@ -188,10 +189,10 @@ h3 {
 /* Booking Summary */
 .booking-summary {
   position: sticky !important;
-  top: 20px !important;
-  background-color: var(--primary-white) !important;
-  border: none !important;
-  border-radius: 5px !important;
+  top: 20px ;
+  background-color: var(--primary-white) ;
+  border: none ;
+  border-radius: 5px ;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   margin-bottom: 30px !important;
   transition: all 0.3s ease !important;

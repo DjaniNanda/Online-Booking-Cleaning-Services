@@ -169,9 +169,9 @@ body, html {
 
 /* Services Section */
 .services-section {
-  min-height: 100vh;
+  min-height: 110vh;
   color: rgb(32, 32, 32);
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)),
     url('./images/2.jpg') no-repeat center center/cover;
   padding: 80px 5%;
   text-align: center;
