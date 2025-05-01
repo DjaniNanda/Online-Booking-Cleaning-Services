@@ -18,7 +18,6 @@ body, html {
     left: 0;
     right: 0;
     z-index: 1000;
-    font-size: small;
     height: 91px; /* Fixed height */
     padding: 0;
 }
