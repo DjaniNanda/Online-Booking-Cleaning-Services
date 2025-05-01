@@ -79,7 +79,7 @@ section.visible {
   margin: 0;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url("./images/11.jpeg") no-repeat center center /
     cover;
-  min-height: 90vh;
+  min-height: 100vh;
   position: relative;
   color: white;
   display: flex;
@@ -99,7 +99,6 @@ section.visible {
   padding: 0 20px;
   width: 100%;
   z-index: 2;
-  margin-top: -100px;
 }
 
 .hero-title {
@@ -175,7 +174,7 @@ section.visible {
 /* Scroll Indicator */
 .scroll-indicator {
   position: absolute;
-  bottom: 20px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
