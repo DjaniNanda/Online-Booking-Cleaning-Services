@@ -121,7 +121,7 @@ body {
   position: relative;
 }
 @media (min-width: 640px) {
-  .steps {
+  .step {
     margin-right: 0px;
   }
 }
