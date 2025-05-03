@@ -116,15 +116,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 125px;
+  margin-right: 5px;
   width: 25%;
   position: relative;
 }
-@media (min-width: 640px) {
-  .step {
-    margin-right: 0px;
-  }
-}
+
 
 .step-icon {
   width: 2rem;
