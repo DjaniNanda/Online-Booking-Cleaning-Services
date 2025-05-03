@@ -116,7 +116,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 5px;
+  margin-right: 15px;
   width: 25%;
   position: relative;
 }
