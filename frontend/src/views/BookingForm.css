@@ -116,9 +116,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 50px;
+  margin-right: 125px;
   width: 25%;
   position: relative;
+}
+@media (min-width: 640px) {
+  .steps {
+    margin-right: 0px;
+  }
 }
 
 .step-icon {
