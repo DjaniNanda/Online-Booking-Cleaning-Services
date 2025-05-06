@@ -82,7 +82,8 @@ class Customer(models.Model):
     email = models.EmailField()
     mobile = models.CharField(max_length=20)
     send_text_reminders = models.BooleanField(default=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -109,9 +110,9 @@ class AddonOption(models.Model):
 class Booking(models.Model):
     FREQUENCY_CHOICES = [
         ('ONE_TIME', 'One Time'),
-        ('EVERY_WEEK', 'Every Week(Discount 10%)'),
+        ('EVERY_WEEK', 'Every Week(Discount 20%)'),
         ('EVERY_2_WEEKS', 'Every 2 Weeks(Discount 15%)'),
-        ('EVERY_4_WEEKS', 'Every 4 Weeks(Discount 20%)'),
+        ('EVERY_4_WEEKS', 'Every 4 Weeks(Discount 10%)'),
     ]
     
     ACCESS_CHOICES = [
@@ -121,42 +122,42 @@ class Booking(models.Model):
         ('SMART_LOCK', 'Smart lock'),
     ]
     
+    # Customer and address info
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    
+    # Service details
     service_type = models.CharField(max_length=100)
-    bathrooms = models.CharField(max_length=20)
-    bedrooms = models.CharField(max_length=20)
+    bathrooms = models.IntegerField(default=0)
+    bedrooms = models.IntegerField(default=1)
     square_feet = models.CharField(max_length=50)
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES)
-    service_date = models.DateTimeField()
-    time_window = models.CharField(max_length=20)
     
-    # Additional information
-    condition = models.CharField(max_length=1)
-    preferred_team = models.CharField(max_length=100, default='No preference')
-    is_flexible = models.CharField(max_length=50)
-    referral_source = models.CharField(max_length=50)
+    # Schedule information
+    service_date = models.DateField()
+    time_window = models.CharField(max_length=20)
+    is_flexible = models.CharField(max_length=50, default='Not flexible')
     
     # Access information
-    access_method = models.CharField(max_length=20, choices=ACCESS_CHOICES)
+    access_method = models.CharField(max_length=50, choices=ACCESS_CHOICES)
     access_instructions = models.TextField(blank=True, null=True)
     
     # Parking information
     parking_instructions = models.TextField(blank=True, null=True)
     parking_cost = models.CharField(max_length=10, default='$0')
     
-    # Other
+    # Additional information
+    condition = models.CharField(max_length=100, blank=True, null=True)
     special_instructions = models.TextField(blank=True, null=True)
+    referral_source = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Payment details
     tip_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
-    
-    # Payment details - storing minimal info
-    payment_last_four = models.CharField(max_length=4)
-    
-    # Calculated fields
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2)
     sales_tax = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_last_four = models.CharField(max_length=4, blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -167,6 +168,7 @@ class Booking(models.Model):
 class BookingAddon(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='addons')
     addon = models.ForeignKey(AddonOption, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=True)
     quantity = models.IntegerField(default=1)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     

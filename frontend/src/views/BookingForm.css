@@ -456,7 +456,9 @@ body {
 .check-icon {
   color: rgb(255, 215, 0); /* Yellow */
 }
-
+label{
+  color: rgb(172, 171, 171) !important;
+}
 /* Frequency Options */
 .frequency-options {
   display: grid;

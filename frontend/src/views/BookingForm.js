@@ -387,33 +387,222 @@ export default function BookingForm() {
 
   // Mock date picker for demonstration
   const DatePickerComponent = ({ selectedDate, onChange }) => {
-    const today = new Date()
-    const nextWeek = new Date()
-    nextWeek.setDate(today.getDate() + 7)
-
-    const dateOptions = [
-      { date: today, formatted: today.toLocaleDateString() },
-      { date: nextWeek, formatted: nextWeek.toLocaleDateString() },
-    ]
-
+    const [currentMonth, setCurrentMonth] = useState(selectedDate || new Date());
+    
+    // Get the first day of the month and the number of days
+    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+    const daysInMonth = lastDayOfMonth.getDate();
+    
+    // Get the day of the week for the first day (0 = Sunday, 1 = Monday, etc.)
+    const firstDayWeekday = firstDayOfMonth.getDay();
+    
+    // Create array of day numbers
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    
+    // Create padding for days before the first day of the month
+    const padding = Array(firstDayWeekday).fill(null);
+    
+    // Combine padding and days
+    const calendarDays = [...padding, ...days];
+    
+    // Move to previous month
+    const prevMonth = () => {
+      const newMonth = new Date(currentMonth);
+      newMonth.setMonth(currentMonth.getMonth() - 1);
+      setCurrentMonth(newMonth);
+    };
+    
+    // Move to next month
+    const nextMonth = () => {
+      const newMonth = new Date(currentMonth);
+      newMonth.setMonth(currentMonth.getMonth() + 1);
+      setCurrentMonth(newMonth);
+    };
+    
+    // Select a date
+    const selectDate = (day) => {
+      if (day) {
+        const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+        onChange(newDate);
+      }
+    };
+    
+    // Check if a date is selected
+    const isSelected = (day) => {
+      if (!day || !selectedDate) return false;
+      return (
+        selectedDate.getDate() === day &&
+        selectedDate.getMonth() === currentMonth.getMonth() &&
+        selectedDate.getFullYear() === currentMonth.getFullYear()
+      );
+    };
+    
+    // Check if a date is today
+    const isToday = (day) => {
+      if (!day) return false;
+      const today = new Date();
+      return (
+        today.getDate() === day &&
+        today.getMonth() === currentMonth.getMonth() &&
+        today.getFullYear() === currentMonth.getFullYear()
+      );
+    };
+    
+    // Format the month and year for display
+    const monthYearFormat = new Intl.DateTimeFormat('en-US', { 
+      month: 'long', 
+      year: 'numeric' 
+    }).format(currentMonth);
+    
+    // Days of the week
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
     return (
       <div className="date-picker">
-        <label>Select Date</label>
-        <div className="date-options">
-          {dateOptions.map((option, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => onChange(option.date)}
-              className={`date-option ${selectedDate && selectedDate.toDateString() === option.date.toDateString() ? "selected" : ""}`}
-            >
-              {option.formatted}
-            </button>
-          ))}
+        <div className="date-picker-container">
+          <div className="date-picker-header">Select Date</div>
+          
+          <div className="month-navigation">
+            <button onClick={prevMonth} className="month-nav-button">&lt;</button>
+            <div className="current-month">{monthYearFormat}</div>
+            <button onClick={nextMonth} className="month-nav-button">&gt;</button>
+          </div>
+          
+          <div className="calendar-grid">
+            {weekdays.map(day => (
+              <div key={day} className="weekday">{day}</div>
+            ))}
+            
+            {calendarDays.map((day, index) => (
+              <div key={index} className="calendar-day-container">
+                {day && (
+                  <div
+                    className={`calendar-day ${
+                      isSelected(day) ? 'selected' : isToday(day) ? 'today' : ''
+                    }`}
+                    onClick={() => selectDate(day)}
+                  >
+                    {day}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          {selectedDate && (
+            <div className="selected-date-display">
+              Selected: {selectedDate.toLocaleDateString()}
+            </div>
+          )}
         </div>
+        
+        <style jsx>{`
+          .date-picker {
+            font-family: Arial, sans-serif;
+          }
+          
+          .date-picker-container {
+            width: 256px;
+            border: 1px solid rgb(116, 116, 116);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background-color: rgb(48, 47, 47);
+            color: white
+          }
+          
+          .date-picker-header {
+            text-align: center;
+            font-weight: 500;
+            padding: 8px;
+            padding-bottom: 8px;
+          }
+          
+          .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px;
+            border-bottom: 1px solid rgb(116, 116, 116);
+            margin-bottom: 8px;
+          }
+          
+          .month-nav-button {
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: white
+          }
+          
+          .month-nav-button:hover {
+            color: black;
+            background-color: rgb(216, 184, 3);
+          }
+          
+          .current-month {
+            font-weight: 500;
+          }
+          
+          .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            padding: 0 8px;
+          }
+          
+          .weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color:rgb(249, 249, 250);
+            padding: 4px 0;
+          }
+          
+          .calendar-day-container {
+            text-align: center;
+            padding: 4px 0;
+          }
+          
+          .calendar-day {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 0 auto;
+          }
+          
+          .calendar-day:hover {
+            background-color: rgb(255, 215, 0);
+          }
+          
+          .calendar-day.today {
+            border: 1px solid rgb(255, 215, 0);
+            color: rgb(255, 215, 0);
+          }
+          
+          .calendar-day.selected {
+            background-color:rgb(255, 215, 0);
+            color: white; 
+          }
+          
+          .selected-date-display {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 14px;
+            padding-bottom: 8px;
+          }
+        `}</style>
       </div>
-    )
+    );
   }
+
 
   // Submit form handler
   const handleSubmit = (e) => {

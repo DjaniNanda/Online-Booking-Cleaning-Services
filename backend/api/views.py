@@ -389,8 +389,8 @@ class BookingView(APIView):
         
         try:
             with transaction.atomic():
-                # Create or get customer
-                customer_data = data.get('personalInfo', {})
+                # Extract customer data
+                customer_data = data.get('customer', {})
                 customer, created = Customer.objects.get_or_create(
                     email=customer_data.get('email'),
                     defaults={
@@ -420,65 +420,80 @@ class BookingView(APIView):
                     zip_code=address_data.get('zipCode')
                 )
                 
-                service_type = data.get('serviceType')
-                bathrooms = data.get('bathrooms')
-                bedrooms = data.get('bedrooms')
-                square_feet = data.get('squareFeet')
-                frequency = data.get('frequency')
+                # Extract service data
+                service_data = data.get('service', {})
+                service_type = service_data.get('type')
+                bathrooms = service_data.get('bathrooms', 0)
+                bedrooms = service_data.get('bedrooms', 1)
+                square_feet = service_data.get('squareFeet')
+                frequency = service_data.get('frequency')
+                
+                # Extract schedule data
+                schedule_data = data.get('schedule', {})
+                service_date = schedule_data.get('date')
+                time_window = schedule_data.get('timeWindow')
+                is_flexible = schedule_data.get('flexible', 'Not flexible')
+                
+                # Extract access information
+                access_data = schedule_data.get('access', {})
+                access_method = access_data.get('method')
+                access_instructions = access_data.get('instructions', '')
+                
+                # Extract additional info
+                additional_info = data.get('additionalInfo', {})
+                condition = additional_info.get('condition', '')
+                special_instructions = additional_info.get('specialInstructions', '')
+                referral_source = additional_info.get('referralSource', '')
+                
+                # Extract parking info
+                parking_data = data.get('parking', {})
+                parking_instructions = parking_data.get('instructions', '')
+                parking_cost = parking_data.get('cost', '$0')
                 
                 # Convert frontend frequency to backend enum
                 frequency_mapping = {
-                    'Every Week(Discount 10%)': 'EVERY_WEEK',
+                    'Every Week(Discount 20%)': 'EVERY_WEEK',
                     'Every 2 Weeks(Discount 15%)': 'EVERY_2_WEEKS',
-                    'Every 4 Weeks(Discount 20%)': 'EVERY_4_WEEKS',
+                    'Every 4 Weeks(Discount 10%)': 'EVERY_4_WEEKS',
                     'One Time': 'ONE_TIME'
                 }
                 frequency_code = frequency_mapping.get(frequency, 'ONE_TIME')
                 
-                # Extract numeric values for calculations
-                try:
-                    bathrooms_count = int(bathrooms.split(' ')[0])
-                except (ValueError, AttributeError, IndexError):
-                    bathrooms_count = 0
-                    
-                try:
-                    bedrooms_count = int(bedrooms.split(' ')[0])
-                except (ValueError, AttributeError, IndexError):
-                    bedrooms_count = 1
+                # Convert access method if needed (if not already in backend format)
+                # This assumes frontend sends the display value, not the code
+                access_mapping = {
+                    'Someone will be home': 'HOME',
+                    'Doorman': 'DOORMAN',
+                    'Key in lockbox': 'LOCKBOX',
+                    'Smart lock': 'SMART_LOCK'
+                }
+                access_code = access_mapping.get(access_method, access_method)
                 
                 # Calculate base price
                 base_price = calculator.calculate_base_price(bedrooms, bathrooms, square_feet)
                 
-                # Calculate addon prices - THIS SECTION NEEDS UPDATING
-                selected_addons = data.get('selectedAddons', [])
+                # Calculate addon prices
+                addons = service_data.get('addons', [])
                 addons_total = Decimal('0')
                 addon_items = []
                 
-                # Handle the case where selectedAddons contains objects with id and quantity
-                for addon_item in selected_addons:
-                    # Handle both simple id values and objects with id and quantity
-                    if isinstance(addon_item, dict):
-                        addon_id = addon_item.get('id')
-                        quantity = addon_item.get('quantity', 1)
-                    else:
-                        addon_id = addon_item
-                        # Check if there's a separate quantity entry for this addon
-                        addon_data = next((item for item in data.get('addonQuantities', []) 
-                                         if item.get('id') == addon_id), None)
-                        quantity = addon_data.get('quantity', 1) if addon_data else 1
+                for addon_item in addons:
+                    addon_id = addon_item.get('id')
+                    quantity = addon_item.get('quantity', 1)
                     
                     try:
                         addon = AddonOption.objects.get(id=addon_id)
                         
                         addon_price = calculator.calculate_addon_price(
                             addon,
-                            bedrooms_count,
-                            bathrooms_count,
+                            bedrooms,
+                            bathrooms,
                             quantity
                         )
                         
                         addon_items.append({
                             'addon': addon,
+                            'name': addon_item.get('name', addon.name),
                             'quantity': quantity,
                             'price': addon_price
                         })
@@ -486,70 +501,96 @@ class BookingView(APIView):
                         addons_total += addon_price
                         
                     except AddonOption.DoesNotExist:
-                        pass
+                        # Create a temporary addon object if it doesn't exist in the database
+                        # This is useful for handling new addons or testing
+                        temp_price = Decimal(str(addon_item.get('price', 0)))
+                        addon_price = temp_price * quantity
+                        
+                        addon_items.append({
+                            'addon': None,
+                            'name': addon_item.get('name', 'Unknown Addon'),
+                            'quantity': quantity,
+                            'price': addon_price
+                        })
+                        
+                        addons_total += addon_price
                 
                 # Calculate discount
-                discount = calculator.calculate_discount(base_price, frequency_code)
+                discount = calculator.calculate_discount(base_price + addons_total, frequency_code)
                 
-                # Get tip amount if provided
-                tip_amount = Decimal('0')
-                if data.get('tip'):
-                    try:
-                        tip_amount = Decimal(data.get('tip').replace('$', '').strip())
-                    except:
-                        tip_amount = Decimal('0')
+                # Get payment data
+                payment_data = data.get('payment', {})
+                tip_amount = Decimal(str(payment_data.get('tip', 0)))
                 
-                # Calculate final totals
-                pricing = calculator.calculate_booking_total(
-                    base_price, 
-                    addons_total, 
-                    discount,
-                    tip_amount
-                )
+                # Calculate final totals or use provided values
+                if payment_data:
+                    subtotal = Decimal(str(payment_data.get('subtotal', 0)))
+                    discount_amount = Decimal(str(payment_data.get('discount', 0)))
+                    sales_tax = Decimal(str(payment_data.get('tax', 0)))
+                    total = Decimal(str(payment_data.get('total', 0)))
+                    pricing = {
+                        'subtotal': subtotal,
+                        'discount': discount_amount,
+                        'sales_tax': sales_tax,
+                        'total': total
+                    }
+                else:
+                    # Calculate if not provided
+                    pricing = calculator.calculate_booking_total(
+                        base_price, 
+                        addons_total, 
+                        discount,
+                        tip_amount
+                    )
                 
                 # Create booking
                 booking = Booking.objects.create(
+                    # Customer and address
                     customer=customer,
                     address=address,
+                    
+                    # Service details
                     service_type=service_type,
                     bathrooms=bathrooms,
                     bedrooms=bedrooms,
                     square_feet=square_feet,
                     frequency=frequency_code,
-                    service_date=data.get('dateTime'),
-                    time_window=data.get('timeWindow'),
+                    
+                    # Schedule
+                    service_date=service_date,
+                    time_window=time_window,
+                    is_flexible=is_flexible,
+                    
+                    # Access info
+                    access_method=access_code,
+                    access_instructions=access_instructions,
+                    
+                    # Parking
+                    parking_instructions=parking_instructions,
+                    parking_cost=parking_cost,
                     
                     # Additional info
-                    condition=data.get('additionalInfo', {}).get('condition', '3'),
-                    preferred_team=data.get('additionalInfo', {}).get('preferredTeam', 'No preference'),
-                    is_flexible=data.get('additionalInfo', {}).get('flexible', 'Not flexible'),
-                    referral_source=data.get('additionalInfo', {}).get('referralSource', ''),
+                    condition=condition,
+                    special_instructions=special_instructions,
+                    referral_source=referral_source,
                     
-                    # Access and parking
-                    access_method=data.get('access', {}).get('method', 'HOME'),
-                    access_instructions=data.get('access', {}).get('instructions', ''),
-                    parking_instructions=data.get('parking', {}).get('instructions', ''),
-                    parking_cost=data.get('parking', {}).get('cost', '$0'),
-                    
-                    # Other details
-                    special_instructions=data.get('specialInstructions', ''),
+                    # Payment details
                     tip_amount=tip_amount,
-                    payment_last_four=data.get('payment', {}).get('cardNumber', '')[-4:],
-                    
-                    # Pricing details
                     subtotal=pricing['subtotal'],
                     discount=pricing['discount'],
                     sales_tax=pricing['sales_tax'],
-                    total=pricing['total']
+                    total=pricing['total'],
+                    payment_last_four=data.get('payment', {}).get('cardNumber', '')[-4:] if data.get('payment', {}).get('cardNumber') else None
                 )
                 
                 # Create booking addon relationships
                 for item in addon_items:
                     BookingAddon.objects.create(
                         booking=booking,
-                        addon=item['addon'],
-                        quantity=item['quantity'],
-                        price=item['price']
+                        addon=item.get('addon'),  # May be None for temporary addons
+                        name=item.get('name'),
+                        quantity=item.get('quantity'),
+                        price=item.get('price')
                     )
                 
                 # Return response with booking details
