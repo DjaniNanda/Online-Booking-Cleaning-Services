@@ -103,7 +103,7 @@ class AddonOption(models.Model):
     base_price = models.DecimalField(max_digits=8, decimal_places=2)
     variable_price = models.BooleanField(default=False)
     formula = models.CharField(max_length=255, blank=True, null=True)
-    quantity = models.IntegerField(max_length=50,default=1)
+    quantity = models.IntegerField(default=1)
     def __str__(self):
         return self.name
 
