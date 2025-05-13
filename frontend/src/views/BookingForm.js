@@ -1,6 +1,5 @@
-"use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Calendar,
   Clock,
@@ -22,11 +21,15 @@ import {
   Leaf,
   PawPrintIcon as Paw,
   Bed,
+  AlertTriangle,
 } from "lucide-react"
+import PaymentForm from "./PaymentForm"
 import "./BookingForm.css"
-const baseUrl = process.env.NODE_ENV === 'development' 
-    ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
-    : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
+
+const baseUrl = process.env.NODE_ENV === 'development'
+? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
+: (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
+
 export default function BookingForm() {
   const [activeStep, setActiveStep] = useState(1)
   const [serviceType, setServiceType] = useState("HOME CLEANING: One Bedroom")
@@ -68,12 +71,25 @@ export default function BookingForm() {
   })
   const [specialInstructions, setSpecialInstructions] = useState("")
   const [tip, setTip] = useState("")
-  const [payment, setPayment] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  })
   const [termsAccepted, setTermsAccepted] = useState(false)
+
+  // Form validation states
+  const [formErrors, setFormErrors] = useState({
+    step1: {},
+    step2: {},
+    step3: {},
+    step4: {},
+  })
+  const [showErrors, setShowErrors] = useState(false)
+
+  // Payment-related state
+  const [paymentComplete, setPaymentComplete] = useState(false)
+  const [paymentError, setPaymentError] = useState(null)
+  const [paymentDetails, setPaymentDetails] = useState({
+    paymentId: null,
+    customerId: null,
+    subscriptionId: null,
+  })
 
   // Booking summary state
   const [bookingSummary, setBookingSummary] = useState({
@@ -420,11 +436,43 @@ export default function BookingForm() {
       setCurrentMonth(newMonth);
     };
     
+    // Function to check if a date is in the past or today
+    const isDateInvalidForBooking = (day) => {
+      if (!day) return false;
+      
+      const dateToCheck = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Add one day to today to get tomorrow
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      // Return true if date is today or earlier (making it invalid)
+      return dateToCheck < tomorrow;
+    };
+    
     // Select a date
     const selectDate = (day) => {
       if (day) {
         const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-        onChange(newDate);
+        
+        // Check if date is valid (not today or earlier)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Add one day to today to get tomorrow
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        if (newDate >= tomorrow) {
+          onChange(newDate);
+          // Clear any date-related errors
+          setFormErrors(prev => ({
+            ...prev,
+            step2: { ...prev.step2, dateTime: null }
+          }));
+        }
       }
     };
     
@@ -479,9 +527,11 @@ export default function BookingForm() {
                 {day && (
                   <div
                     className={`calendar-day ${
-                      isSelected(day) ? 'selected' : isToday(day) ? 'today' : ''
+                      isSelected(day) ? 'selected' : 
+                      isToday(day) ? 'today' : 
+                      isDateInvalidForBooking(day) ? 'disabled' : ''
                     }`}
-                    onClick={() => selectDate(day)}
+                    onClick={() => !isDateInvalidForBooking(day) && selectDate(day)}
                   >
                     {day}
                   </div>
@@ -490,124 +540,103 @@ export default function BookingForm() {
             ))}
           </div>
           
-          {selectedDate && (
-            <div className="selected-date-display">
-              Selected: {selectedDate.toLocaleDateString()}
-            </div>
-          )}
+          <div className="date-picker-note">
+            <AlertTriangle size={16} className="icon" />
+            <span>Bookings must be made at least 1 day in advance</span>
+          </div>
         </div>
-        
-        <style jsx>{`
-          .date-picker {
-            font-family: Arial, sans-serif;
-          }
-          
-          .date-picker-container {
-            width: 256px;
-            border: 1px solid rgb(116, 116, 116);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            background-color: rgb(48, 47, 47);
-            color: white
-          }
-          
-          .date-picker-header {
-            text-align: center;
-            font-weight: 500;
-            padding: 8px;
-            padding-bottom: 8px;
-          }
-          
-          .month-navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px;
-            border-bottom: 1px solid rgb(116, 116, 116);
-            margin-bottom: 8px;
-          }
-          
-          .month-nav-button {
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: white
-          }
-          
-          .month-nav-button:hover {
-            color: black;
-            background-color: rgb(216, 184, 3);
-          }
-          
-          .current-month {
-            font-weight: 500;
-          }
-          
-          .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            padding: 0 8px;
-          }
-          
-          .weekday {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 500;
-            color:rgb(249, 249, 250);
-            padding: 4px 0;
-          }
-          
-          .calendar-day-container {
-            text-align: center;
-            padding: 4px 0;
-          }
-          
-          .calendar-day {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            cursor: pointer;
-            margin: 0 auto;
-          }
-          
-          .calendar-day:hover {
-            background-color: rgb(255, 215, 0);
-          }
-          
-          .calendar-day.today {
-            border: 1px solid rgb(255, 215, 0);
-            color: rgb(255, 215, 0);
-          }
-          
-          .calendar-day.selected {
-            background-color:rgb(255, 215, 0);
-            color: white; 
-          }
-          
-          .selected-date-display {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-            font-size: 14px;
-            padding-bottom: 8px;
-          }
-        `}</style>
       </div>
     );
   }
 
+  // Validate current step
+  const validateStep = (step) => {
+    const errors = {};
+    
+    switch(step) {
+      case 1:
+        // Step 1 validation (if needed)
+        break;
+      
+      case 2:
+        // Validate date and time selection
+        if (!dateTime) {
+          errors.dateTime = "Please select a service date";
+        }
+        
+        if (!timeWindow) {
+          errors.timeWindow = "Please select a time window";
+        }
+        break;
+      
+      case 3:
+        // Validate personal information
+        if (!personalInfo.firstName.trim()) {
+          errors.firstName = "First name is required";
+        }
+        
+        if (!personalInfo.lastName.trim()) {
+          errors.lastName = "Last name is required";
+        }
+        
+        if (!personalInfo.email.trim()) {
+          errors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(personalInfo.email)) {
+          errors.email = "Please enter a valid email address";
+        }
+        
+        // Validate address
+        if (!address.street.trim()) {
+          errors.street = "Street address is required";
+        }
+        
+        if (!address.city.trim()) {
+          errors.city = "City is required";
+        }
+        
+        if (!address.state) {
+          errors.state = "Province/Territory is required";
+        }
+        
+        if (!address.zipCode.trim()) {
+          errors.zipCode = "Zip/Postal code is required";
+        } else if (!/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(address.zipCode.trim()) && 
+                  !/^\d{5}(-\d{4})?$/.test(address.zipCode.trim())) {
+          errors.zipCode = "Please enter a valid postal/zip code";
+        }
+        break;
+      
+      case 4:
+        // Validate payment information
+        if (!termsAccepted) {
+          errors.terms = "You must accept the terms and conditions";
+        }
+        break;
+      
+      default:
+        break;
+    }
+    
+    return errors;
+  }
 
-  // Submit form handler
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  // Handle payment success
+  const handlePaymentSuccess = (paymentData) => {
+    setPaymentComplete(true)
+    setPaymentDetails(paymentData)
+    
+    // Now submit the booking with payment info
+    submitBookingWithPayment(paymentData)
+  }
 
+  // Handle payment error
+  const handlePaymentError = (error) => {
+    setPaymentError(error)
+    console.error('Payment error:', error)
+  }
+
+  // Submit booking with payment information
+  const submitBookingWithPayment = (paymentData) => {
     // Create the data object to send to Django backend
     const formData = {
       service: {
@@ -652,6 +681,10 @@ export default function BookingForm() {
         discount: Number.parseFloat(bookingSummary.discount),
         tax: Number.parseFloat(bookingSummary.salesTax),
         total: Number.parseFloat(bookingSummary.initialCleaning),
+        // Add payment details from Stripe
+        paymentId: paymentData.paymentId,
+        customerId: paymentData.customerId,
+        subscriptionId: paymentData.subscriptionId,
       },
     }
 
@@ -669,20 +702,38 @@ export default function BookingForm() {
         }
         return response.json()
       })
-      .then((data) => {
-        alert("Booking submitted successfully! You will receive a confirmation email shortly.")
-      })
       .catch((error) => {
         console.error("Error submitting form:", error)
         alert("There was an error submitting your booking. Please try again.")
       })
   }
 
-  // Next step handler
+  // Next step handler with validation
   const nextStep = () => {
+    const errors = validateStep(activeStep);
+    
+    // Update form errors state
+    setFormErrors({
+      ...formErrors,
+      [`step${activeStep}`]: errors
+    });
+    
+    // If there are errors, show them and prevent moving to next step
+    if (Object.keys(errors).length > 0) {
+      setShowErrors(true);
+      // Scroll to first error
+      const firstErrorElement = document.querySelector('.error-message');
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    
+    // If all validations pass, move to next step
     if (activeStep < steps.length) {
-      setActiveStep(activeStep + 1)
-      window.scrollTo(0, 0)
+      setActiveStep(activeStep + 1);
+      setShowErrors(false);
+      window.scrollTo(0, 0);
     }
   }
 
@@ -690,9 +741,17 @@ export default function BookingForm() {
   const prevStep = () => {
     if (activeStep > 1) {
       setActiveStep(activeStep - 1)
+      setShowErrors(false)
       window.scrollTo(0, 0)
     }
   }
+
+  // Error display component
+  const ErrorMessage = ({ error }) => {
+    if (!error || !showErrors) return null;
+    return <div className="error-message">{error}</div>;
+  };
+
 
   return (
     <div className="booking-form-container">
@@ -721,7 +780,7 @@ export default function BookingForm() {
         <div className="main-content">
           {/* Form Content */}
           <div className="form-container">
-            <form onSubmit={handleSubmit}>
+            <div>
               {/* Step 1: Services */}
               {activeStep === 1 && (
                 <div className="step-content">
@@ -777,7 +836,7 @@ export default function BookingForm() {
                     </div>
                   </div>
 
-                  {/* Frequency */}
+{/* Frequency */}
                   <div className="section">
                     <h3 className="subsection-title">How Often?</h3>
                     <p className="subsection-description">Choose a frequency that suits your lifestyle</p>
@@ -912,6 +971,7 @@ export default function BookingForm() {
                     {/* Date Picker */}
                     <div className="form-group">
                       <DatePickerComponent selectedDate={dateTime} onChange={(date) => setDateTime(date)} />
+                      <ErrorMessage error={formErrors.step2?.dateTime} />
                     </div>
 
                     {/* Time Window */}
@@ -922,7 +982,13 @@ export default function BookingForm() {
                           <button
                             key={time}
                             type="button"
-                            onClick={() => setTimeWindow(time)}
+                            onClick={() => {
+                              setTimeWindow(time);
+                              setFormErrors(prev => ({
+                                ...prev,
+                                step2: { ...prev.step2, timeWindow: null }
+                              }));
+                            }}
                             className={`time-option ${timeWindow === time ? "selected" : ""}`}
                           >
                             <div className="time-option-content">
@@ -932,6 +998,7 @@ export default function BookingForm() {
                           </button>
                         ))}
                       </div>
+                      <ErrorMessage error={formErrors.step2?.timeWindow} />
                     </div>
                   </div>
 
@@ -1011,10 +1078,17 @@ export default function BookingForm() {
                         <input
                           type="text"
                           value={personalInfo.firstName}
-                          onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
-                          className="form-input"
+                          onChange={(e) => {
+                            setPersonalInfo({ ...personalInfo, firstName: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, firstName: null }
+                            }));
+                          }}
+                          className={`form-input ${formErrors.step3?.firstName && showErrors ? 'error' : ''}`}
                           required
                         />
+                        <ErrorMessage error={formErrors.step3?.firstName} />
                       </div>
 
                       <div className="form-group">
@@ -1022,10 +1096,17 @@ export default function BookingForm() {
                         <input
                           type="text"
                           value={personalInfo.lastName}
-                          onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
-                          className="form-input"
+                          onChange={(e) => {
+                            setPersonalInfo({ ...personalInfo, lastName: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, lastName: null }
+                            }));
+                          }}
+                          className={`form-input ${formErrors.step3?.lastName && showErrors ? 'error' : ''}`}
                           required
                         />
+                        <ErrorMessage error={formErrors.step3?.lastName} />
                       </div>
                     </div>
 
@@ -1035,10 +1116,17 @@ export default function BookingForm() {
                         <input
                           type="email"
                           value={personalInfo.email}
-                          onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
-                          className="form-input"
+                          onChange={(e) => {
+                            setPersonalInfo({ ...personalInfo, email: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, email: null }
+                            }));
+                          }}
+                          className={`form-input ${formErrors.step3?.email && showErrors ? 'error' : ''}`}
                           required
                         />
+                        <ErrorMessage error={formErrors.step3?.email} />
                       </div>
 
                       <div className="form-group">
@@ -1046,10 +1134,17 @@ export default function BookingForm() {
                         <input
                           type="tel"
                           value={personalInfo.mobile}
-                          onChange={(e) => setPersonalInfo({ ...personalInfo, mobile: e.target.value })}
-                          className="form-input"
+                          onChange={(e) => {
+                            setPersonalInfo({ ...personalInfo, mobile: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, mobile: null }
+                            }));
+                          }}
+                          className={`form-input ${formErrors.step3?.mobile && showErrors ? 'error' : ''}`}
                           required
                         />
+                        <ErrorMessage error={formErrors.step3?.mobile} />
                       </div>
                     </div>
 
@@ -1079,10 +1174,17 @@ export default function BookingForm() {
                       <input
                         type="text"
                         value={address.street}
-                        onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                        className="form-input"
+                        onChange={(e) => {
+                          setAddress({ ...address, street: e.target.value });
+                          setFormErrors(prev => ({
+                            ...prev,
+                            step3: { ...prev.step3, street: null }
+                          }));
+                        }}
+                        className={`form-input ${formErrors.step3?.street && showErrors ? 'error' : ''}`}
                         required
                       />
+                      <ErrorMessage error={formErrors.step3?.street} />
                     </div>
 
                     <div className="form-group">
@@ -1101,18 +1203,31 @@ export default function BookingForm() {
                         <input
                           type="text"
                           value={address.city}
-                          onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                          className="form-input"
+                          onChange={(e) => {
+                            setAddress({ ...address, city: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, city: null }
+                            }));
+                          }}
+                          className={`form-input ${formErrors.step3?.city && showErrors ? 'error' : ''}`}
                           required
                         />
+                        <ErrorMessage error={formErrors.step3?.city} />
                       </div>
 
                       <div className="form-group">
-                        <label>Province/Teritory</label>
+                        <label>Province/Territory</label>
                         <select
                           value={address.state}
-                          onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                          className="form-select"
+                          onChange={(e) => {
+                            setAddress({ ...address, state: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, state: null }
+                            }));
+                          }}
+                          className={`form-select ${formErrors.step3?.state && showErrors ? 'error' : ''}`}
                           required
                         >
                           <option value="">Select Province</option>
@@ -1129,19 +1244,26 @@ export default function BookingForm() {
                           <option value="Northwest Territories">Northwest Territories</option>
                           <option value="Nunavut">Nunavut</option>
                           <option value="Yukon">Yukon</option>
-                          {/* Add more states as needed */}
                         </select>
+                        <ErrorMessage error={formErrors.step3?.state} />
                       </div>
 
                       <div className="form-group">
-                        <label>Zip Code</label>
+                        <label>Zip/Postal Code</label>
                         <input
                           type="text"
                           value={address.zipCode}
-                          onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
-                          className="form-input"
+                          onChange={(e) => {
+                            setAddress({ ...address, zipCode: e.target.value });
+                            setFormErrors(prev => ({
+                              ...prev,
+                              step3: { ...prev.step3, zipCode: null }
+                            }));
+                          }}
+                          className={`form-input ${formErrors.step3?.zipCode && showErrors ? 'error' : ''}`}
                           required
                         />
+                        <ErrorMessage error={formErrors.step3?.zipCode} />
                       </div>
                     </div>
                   </div>
@@ -1279,85 +1401,65 @@ export default function BookingForm() {
                     )}
                   </div>
 
-                  {/* Payment Form */}
-                  <div className="section">
-                    <h3 className="subsection-title">Credit Card Information</h3>
-
-                    <div className="form-group">
-                      <label>Card Number</label>
+                  {/* Terms and Conditions */}
+                  <div className="terms-section">
+                    <div className="checkbox-group">
                       <input
-                        type="text"
-                        value={payment.cardNumber}
-                        onChange={(e) => setPayment({ ...payment, cardNumber: e.target.value })}
-                        className="form-input"
-                        placeholder="1234 5678 9012 3456"
+                        id="terms"
+                        name="terms"
+                        type="checkbox"
+                        checked={termsAccepted}
+                        onChange={(e) => {
+                          setTermsAccepted(e.target.checked);
+                          setFormErrors(prev => ({
+                            ...prev,
+                            step4: { ...prev.step4, terms: null }
+                          }));
+                        }}
+                        className="checkbox"
                         required
                       />
+                      <label htmlFor="terms" className="checkbox-label">
+                        I accept the{" "}
+                        <a href="#" className="link">
+                          Terms and Conditions
+                        </a>{" "}
+                        and{" "}
+                        <a href="#" className="link">
+                          Privacy Policy
+                        </a>
+                      </label>
                     </div>
+                    <ErrorMessage error={formErrors.step4?.terms} />
+                  </div>
 
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Expiration Date</label>
-                        <input
-                          type="text"
-                          value={payment.expiryDate}
-                          onChange={(e) => setPayment({ ...payment, expiryDate: e.target.value })}
-                          className="form-input"
-                          placeholder="MM/YY"
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>CVV</label>
-                        <input
-                          type="text"
-                          value={payment.cvv}
-                          onChange={(e) => setPayment({ ...payment, cvv: e.target.value })}
-                          className="form-input"
-                          placeholder="123"
-                          required
-                        />
-                      </div>
+                  {/* Display payment error if any */}
+                  {paymentError && (
+                    <div className="payment-error">
+                      <AlertTriangle size={18} className="error-icon" />
+                      <span>{paymentError.message || "There was an error processing your payment. Please try again."}</span>
                     </div>
+                  )}
 
-                    <div className="terms-section">
-                      <div className="checkbox-group">
-                        <input
-                          id="terms"
-                          name="terms"
-                          type="checkbox"
-                          checked={termsAccepted}
-                          onChange={(e) => setTermsAccepted(e.target.checked)}
-                          className="checkbox"
-                          required
-                        />
-                        <label htmlFor="terms" className="checkbox-label">
-                          I accept the{" "}
-                          <a href="#" className="link">
-                            Terms and Conditions
-                          </a>{" "}
-                          and{" "}
-                          <a href="#" className="link">
-                            Privacy Policy
-                          </a>
-                        </label>
-                      </div>
-                    </div>
+                  {/* Stripe Payment Form */}
+                  <div className="payment-form-container">
+                    <PaymentForm 
+                      customerInfo={personalInfo}
+                      amount={bookingSummary.initialCleaning}
+                      frequency={frequency}
+                      onPaymentSuccess={handlePaymentSuccess}
+                      onPaymentError={handlePaymentError}
+                    />
                   </div>
 
                   <div className="form-actions">
                     <button type="button" onClick={prevStep} className="btn btn-secondary">
                       Back
                     </button>
-                    <button type="submit" className="btn btn-success">
-                      Complete Booking
-                      <Check size={20} className="btn-icon" />
-                    </button>
                   </div>
                 </div>
               )}
-            </form>
+            </div>
           </div>
 
           {/* Booking Summary */}
@@ -1416,7 +1518,20 @@ export default function BookingForm() {
                   <span className="summary-label">Total:</span>
                   <span className="summary-value">${bookingSummary.initialCleaning}</span>
                 </div>
-                <p className="summary-note">You won't be charged until after your service is completed</p>
+                
+                {frequency !== "One Time(Discount 0%)" && (
+                  <p className="summary-note payment-schedule">
+                    {frequency.includes("Every Week") ? (
+                      "You will be charged this amount every week"
+                    ) : frequency.includes("Every 2 Weeks") ? (
+                      "You will be charged this amount every 2 weeks"
+                    ) : (
+                      "You will be charged this amount every 4 weeks"
+                    )}
+                  </p>
+                )}
+                
+                <p className="summary-note">Payment will be processed securely via Stripe</p>
               </div>
 
               <div className="summary-footer">

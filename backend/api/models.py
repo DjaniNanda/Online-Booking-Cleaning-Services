@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 
-
 class QuoteRequest(models.Model):
     FREQUENCY_CHOICES = [
         ('weekly', 'Weekly'),
@@ -72,7 +71,7 @@ class QuoteRequest(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.firstname} {self.lastname} - {self.created_at}"
+        return f"{self.firstname} {self.lastname} - {self.date_created}"
     
 
 class Customer(models.Model):
@@ -82,8 +81,10 @@ class Customer(models.Model):
     email = models.EmailField()
     mobile = models.CharField(max_length=20)
     send_text_reminders = models.BooleanField(default=True)
+    stripe_customer_id = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -92,7 +93,7 @@ class Address(models.Model):
     street = models.CharField(max_length=255)
     apt = models.CharField(max_length=20, blank=True, null=True)
     city = models.CharField(max_length=100)
-    state = models.CharField(max_length=2)
+    state = models.CharField(max_length=100)
     zip_code = models.CharField(max_length=10)
     
     def __str__(self):
@@ -104,8 +105,31 @@ class AddonOption(models.Model):
     variable_price = models.BooleanField(default=False)
     formula = models.CharField(max_length=255, blank=True, null=True)
     quantity = models.IntegerField(default=1)
+    
     def __str__(self):
         return self.name
+
+class StripePayment(models.Model):
+    PAYMENT_STATUS_CHOICES = [
+        ('succeeded', 'Succeeded'),
+        ('pending', 'Pending'),
+        ('failed', 'Failed'),
+        ('canceled', 'Canceled')
+    ]
+    
+    payment_id = models.CharField(max_length=100, unique=True)
+    customer_id = models.CharField(max_length=100)
+    subscription_id = models.CharField(max_length=100, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='usd')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=100)
+    is_recurring = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Payment {self.payment_id} - {self.amount} {self.currency} - {self.payment_status}"
 
 class Booking(models.Model):
     FREQUENCY_CHOICES = [
@@ -159,6 +183,9 @@ class Booking(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2)
     payment_last_four = models.CharField(max_length=4, blank=True, null=True)
     
+    # Stripe payment info
+    stripe_payment = models.OneToOneField(StripePayment, on_delete=models.SET_NULL, null=True, blank=True, related_name='booking')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -167,10 +194,10 @@ class Booking(models.Model):
 
 class BookingAddon(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='addons')
-    addon = models.ForeignKey(AddonOption, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, blank=True)
+    addon = models.ForeignKey(AddonOption, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=100)
     quantity = models.IntegerField(default=1)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     
     def __str__(self):
-        return f"{self.addon.name} ({self.quantity}) - ${self.price}"
+        return f"{self.name} ({self.quantity}) - ${self.price}"

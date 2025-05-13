@@ -21,7 +21,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-   "https://lovelyserenity.vercel.app",  # Adjust if your frontend is hosted elsewhere
+   "https://lovelyserenitycorp.com", 
+   "https://www.lovelyserenitycorp.com", # Adjust if your frontend is hosted elsewhere
 ]
 STORAGES = {
     

@@ -1,8 +1,8 @@
 # Node.js (React)
 node_modules/
-
 /.pnp
 .pnp.js
+
 # Python (Django)
 venv/
 .env/
@@ -10,10 +10,15 @@ __pycache__/
 *.pyc
 db.sqlite3
 
+# Environment variables
+.env
+*.env
+
 # OS
 .DS_Store
-#
-/build
+
+# /build
+
 # SMTP configuration files
 smtp.config.js
 email.config.js
@@ -24,6 +29,4 @@ mail-config.*
 
 # testing
 /coverage
-
-
-
+frontend/.env

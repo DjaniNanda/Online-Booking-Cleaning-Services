@@ -1,4 +1,4 @@
-/* Base Styles */
+/* BookingForm.css */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -728,37 +728,87 @@ label{
     margin: 0 0.75rem;
   }
 }
-
 /* Date Picker */
+
 .date-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
+  font-family: Arial, sans-serif;
 }
-
-.date-picker label {
-  font-size: 0.875rem;
+.date-picker-container {
+  width: 206px;
+  border: 1px solid rgb(116, 116, 116);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: rgb(48, 47, 47);
+  color: white
+}
+.date-picker-header {
+  text-align: center;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  padding: 8px;
+  padding-bottom: 3px;
 }
-
-.date-options {
+.month-navigation {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  border-bottom: 1px solid rgb(116, 116, 116);
+  margin-bottom: 3px;
+}
+.month-nav-button {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white
+}
+.month-nav-button:hover {
+  color: black;
+  background-color: rgb(216, 184, 3);
+}
+.current-month {
+  font-weight: 500;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  padding: 0 8px;
+}
+.weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color:rgb(249, 249, 250);
+  padding: 4px 0;
+}
+.calendar-day-container {
+  text-align: center;
+  padding: 4px 0;
+}
+.calendar-day {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 0 auto;
+}
+.calendar-day:hover {
+  background-color: rgb(255, 215, 0);
+}
+.calendar-day.today {
+  border: 1px solid rgb(255, 215, 0);
+  color: rgb(255, 215, 0);
+}
+.calendar-day.selected {
+  background-color:rgb(255, 215, 0);
+  color: white; 
 }
 
-.date-option {
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: white;
-  font-size: 0.875rem;
-}
 
 @media (min-width: 640px) {
   .date-option {
@@ -1004,6 +1054,98 @@ label{
   background-color: rgba(255, 215, 0, 0.8); /* Yellow with opacity */
 }
 
+.stripe-card-element {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.375rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-bottom: 1rem;
+}
+
+.payment-error {
+  color: #ff5555;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Booking Success Styles */
+.booking-success {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.success-icon {
+  background-color: rgba(74, 222, 128, 0.1);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.booking-success h1 {
+  font-size: 1.75rem;
+  color: #4ade80;
+  margin-bottom: 1rem;
+}
+
+.booking-success p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
+}
+
+.success-details {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.success-details h2 {
+  font-size: 1.25rem;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.detail-row span:first-child {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.detail-row span:last-child {
+  font-weight: 500;
+  color: white;
+}
+
+/* Error Message Styles */
+.error-message {
+  background-color: rgba(255, 85, 85, 0.1);
+  border: 1px solid rgba(255, 85, 85, 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.error-message p {
+  color: #ff5555;
+  margin: 0;
+}
+
+
 /* Summary Container */
 .summary-container {
   width: 100%;
@@ -1087,6 +1229,7 @@ label{
 .summary-footer {
   margin-top: 1.5rem;
 }
+
 
 .guarantee-box {
   background-color: rgba(255, 255, 255, 0.05);
