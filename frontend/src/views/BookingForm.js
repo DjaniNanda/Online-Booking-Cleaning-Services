@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import {
   Calendar,
   Clock,
@@ -22,6 +22,7 @@ import {
   PawPrintIcon as Paw,
   Bed,
   AlertTriangle,
+  AlertCircle,
 } from "lucide-react"
 import PaymentForm from "./PaymentForm"
 import "./BookingForm.css"
@@ -81,6 +82,9 @@ export default function BookingForm() {
     step4: {},
   })
   const [showErrors, setShowErrors] = useState(false)
+  
+  // Refs for scrolling to error fields
+  const errorRefs = useRef({})
 
   // Payment-related state
   const [paymentComplete, setPaymentComplete] = useState(false)
@@ -620,6 +624,25 @@ export default function BookingForm() {
     return errors;
   }
 
+  // Effect to scroll to first error when errors are shown
+  useEffect(() => {
+    if (showErrors) {
+      // Get the current step errors
+      const currentStepErrors = formErrors[`step${activeStep}`];
+      
+      // Find the first error field
+      const firstErrorField = Object.keys(currentStepErrors)[0];
+      
+      if (firstErrorField && errorRefs.current[firstErrorField]) {
+        // Scroll to the first error element
+        errorRefs.current[firstErrorField].scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [showErrors, formErrors, activeStep]);
+
   // Handle payment success
   const handlePaymentSuccess = (paymentData) => {
     setPaymentComplete(true)
@@ -721,11 +744,6 @@ export default function BookingForm() {
     // If there are errors, show them and prevent moving to next step
     if (Object.keys(errors).length > 0) {
       setShowErrors(true);
-      // Scroll to first error
-      const firstErrorElement = document.querySelector('.error-message');
-      if (firstErrorElement) {
-        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
       return;
     }
     
@@ -747,10 +765,20 @@ export default function BookingForm() {
   }
 
   // Error display component
-  const ErrorMessage = ({ error }) => {
+  const ErrorMessage = ({ error, fieldName }) => {
     if (!error || !showErrors) return null;
-    return <div className="error-message">{error}</div>;
+    
+    return (
+      <div 
+        className="error-message" 
+        ref={el => errorRefs.current[fieldName] = el}
+      >
+        <AlertCircle size={16} className="error-icon" />
+        {error}
+      </div>
+    );
   };
+
 
 
   return (
