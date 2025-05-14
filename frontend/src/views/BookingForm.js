@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import {
   Calendar,
   Clock,
@@ -82,7 +81,7 @@ export default function BookingForm() {
     step4: {},
   })
   const [showErrors, setShowErrors] = useState(false)
-
+  
   // Payment-related state
   const [paymentComplete, setPaymentComplete] = useState(false)
   const [paymentError, setPaymentError] = useState(null)
@@ -709,6 +708,35 @@ export default function BookingForm() {
       })
   }
 
+  // Create refs for each potential error field
+  const errorRefs = useRef({});
+
+  // Effect to scroll to errors when they appear
+  useEffect(() => {
+    if (showErrors) {
+      // Get the current step's errors
+      const currentStepErrors = formErrors[`step${activeStep}`] || {};
+      const errorKeys = Object.keys(currentStepErrors);
+      
+      if (errorKeys.length > 0) {
+        // Get the first error field that exists in the DOM
+        const firstErrorField = errorKeys.find(key => 
+          errorRefs.current[`${activeStep}-${key}`]
+        );
+        
+        if (firstErrorField && errorRefs.current[`${activeStep}-${firstErrorField}`]) {
+          // Scroll to the error element with a slight delay to ensure DOM is updated
+          setTimeout(() => {
+            errorRefs.current[`${activeStep}-${firstErrorField}`].scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+          }, 100);
+        }
+      }
+    }
+  }, [formErrors, showErrors, activeStep]);
+
   // Next step handler with validation
   const nextStep = () => {
     const errors = validateStep(activeStep);
@@ -722,11 +750,6 @@ export default function BookingForm() {
     // If there are errors, show them and prevent moving to next step
     if (Object.keys(errors).length > 0) {
       setShowErrors(true);
-      // Scroll to first error
-      const firstErrorElement = document.querySelector('.error-message');
-      if (firstErrorElement) {
-        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
       return;
     }
     
@@ -747,10 +770,22 @@ export default function BookingForm() {
     }
   }
 
-  // Error display component
-  const ErrorMessage = ({ error }) => {
+  // Error display component with ref for scrolling
+  const ErrorMessage = ({ error, fieldName }) => {
     if (!error || !showErrors) return null;
-    return <div className="error-message"><AlertCircle size={20} />{error}</div>;
+    
+    const refKey = `${activeStep}-${fieldName}`;
+    
+    return (
+      <div 
+        className="error-message" 
+        ref={el => {
+          errorRefs.current[refKey] = el;
+        }}
+      >
+        <AlertCircle size={20} />{error}
+      </div>
+    );
   };
 
 
@@ -972,7 +1007,7 @@ export default function BookingForm() {
                     {/* Date Picker */}
                     <div className="form-group">
                       <DatePickerComponent selectedDate={dateTime} onChange={(date) => setDateTime(date)} />
-                      <ErrorMessage error={formErrors.step2?.dateTime} />
+                      <ErrorMessage error={formErrors.step2?.dateTime} fieldName="dateTime" />
                     </div>
 
                     {/* Time Window */}
@@ -999,7 +1034,7 @@ export default function BookingForm() {
                           </button>
                         ))}
                       </div>
-                      <ErrorMessage error={formErrors.step2?.timeWindow} />
+                      <ErrorMessage error={formErrors.step2?.timeWindow} fieldName="timeWindow" />
                     </div>
                   </div>
 
@@ -1089,7 +1124,7 @@ export default function BookingForm() {
                           className={`form-input ${formErrors.step3?.firstName && showErrors ? 'error' : ''}`}
                           required
                         />
-                        <ErrorMessage error={formErrors.step3?.firstName} />
+                        <ErrorMessage error={formErrors.step3?.firstName} fieldName="firstName" />
                       </div>
 
                       <div className="form-group">
@@ -1107,7 +1142,7 @@ export default function BookingForm() {
                           className={`form-input ${formErrors.step3?.lastName && showErrors ? 'error' : ''}`}
                           required
                         />
-                        <ErrorMessage error={formErrors.step3?.lastName} />
+                        <ErrorMessage error={formErrors.step3?.lastName} fieldName="lastName" />
                       </div>
                     </div>
 
@@ -1127,7 +1162,7 @@ export default function BookingForm() {
                           className={`form-input ${formErrors.step3?.email && showErrors ? 'error' : ''}`}
                           required
                         />
-                        <ErrorMessage error={formErrors.step3?.email} />
+                        <ErrorMessage error={formErrors.step3?.email} fieldName="email" />
                       </div>
 
                       <div className="form-group">
@@ -1145,7 +1180,7 @@ export default function BookingForm() {
                           className={`form-input ${formErrors.step3?.mobile && showErrors ? 'error' : ''}`}
                           required
                         />
-                        <ErrorMessage error={formErrors.step3?.mobile} />
+                        <ErrorMessage error={formErrors.step3?.mobile} fieldName="mobile" />
                       </div>
                     </div>
 
@@ -1185,7 +1220,7 @@ export default function BookingForm() {
                         className={`form-input ${formErrors.step3?.street && showErrors ? 'error' : ''}`}
                         required
                       />
-                      <ErrorMessage error={formErrors.step3?.street} />
+                      <ErrorMessage error={formErrors.step3?.street} fieldName="street" />
                     </div>
 
                     <div className="form-group">
@@ -1214,7 +1249,7 @@ export default function BookingForm() {
                           className={`form-input ${formErrors.step3?.city && showErrors ? 'error' : ''}`}
                           required
                         />
-                        <ErrorMessage error={formErrors.step3?.city} />
+                        <ErrorMessage error={formErrors.step3?.city} fieldName="city" />
                       </div>
 
                       <div className="form-group">
@@ -1246,7 +1281,7 @@ export default function BookingForm() {
                           <option value="Nunavut">Nunavut</option>
                           <option value="Yukon">Yukon</option>
                         </select>
-                        <ErrorMessage error={formErrors.step3?.state} />
+                        <ErrorMessage error={formErrors.step3?.state} fieldName="state" />
                       </div>
 
                       <div className="form-group">
@@ -1264,7 +1299,7 @@ export default function BookingForm() {
                           className={`form-input ${formErrors.step3?.zipCode && showErrors ? 'error' : ''}`}
                           required
                         />
-                        <ErrorMessage error={formErrors.step3?.zipCode} />
+                        <ErrorMessage error={formErrors.step3?.zipCode} fieldName="zipCode" />
                       </div>
                     </div>
                   </div>
@@ -1373,7 +1408,7 @@ export default function BookingForm() {
                     <p className="subsection-description">Show appreciation for your cleaning team's hard work</p>
 
                     <div className="tip-options">
-                      {["0", "15", "20", "25", "Other"].map((tipOption) => (
+                      {["10", "20", "30", "40", "Other"].map((tipOption) => (
                         <button
                           key={tipOption}
                           type="button"
@@ -1431,7 +1466,7 @@ export default function BookingForm() {
                         </a>
                       </label>
                     </div>
-                    <ErrorMessage error={formErrors.step4?.terms} />
+                    <ErrorMessage error={formErrors.step4?.terms} fieldName="terms" />
                   </div>
 
                   {/* Display payment error if any */}
