@@ -48,9 +48,9 @@ function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:lovelyserenitycorp@email.com">
+                <a href="mailto:lovelyserenitycorp@gmail.com">
                   <i className="bi bi-envelope-fill"></i>
-                  <span>lovelyserenitycorp@email.com</span>
+                  <span>lovelyserenitycorp@gmail.com</span>
                 </a>
               </li>
               <li>
