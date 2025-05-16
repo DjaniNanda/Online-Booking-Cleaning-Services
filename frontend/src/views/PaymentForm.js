@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Shield, CreditCard, AlertCircle, CheckCircle2, Mail } from 'lucide-react';
+import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
+import { Shield, CreditCard, AlertCircle, CheckCircle2, Mail, MapPin } from 'lucide-react';
 import './PaymentForm.css';
 
-const PaymentForm = ({
+const CustomizedPaymentForm = ({
   amount,
   frequency,
   customerInfo,
@@ -15,6 +15,7 @@ const PaymentForm = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [postalCode, setPostalCode] = useState('');
   const baseUrl = process.env.NODE_ENV === 'development'
     ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
     : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
@@ -29,6 +30,11 @@ const PaymentForm = ({
     return 'one_time';
   };
 
+  const handlePostalCodeChange = (e) => {
+    // Allow alphanumeric characters for postal code
+    setPostalCode(e.target.value.toUpperCase());
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -40,21 +46,29 @@ const PaymentForm = ({
     setError(null);
     setSuccess(null);
 
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
+    // Get the individual card elements
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    const cardExpiryElement = elements.getElement(CardExpiryElement);
+    const cardCvcElement = elements.getElement(CardCvcElement);
+    
+    if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
       setProcessing(false);
+      setError('Card elements not properly initialized');
       return;
     }
 
     try {
-      // Create payment method
+      // Create payment method with separated elements
       const { error: paymentMethodError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
-        card: cardElement,
+        card: cardNumberElement,
         billing_details: {
           name: `${customerInfo.firstName} ${customerInfo.lastName}`,
           email: customerInfo.email,
           phone: customerInfo.mobile,
+          address: {
+            postal_code: postalCode
+          }
         },
       });
 
@@ -69,6 +83,7 @@ const PaymentForm = ({
         customer_email: customerInfo.email,
         customer_name: `${customerInfo.firstName} ${customerInfo.lastName}`,
         customer_phone: customerInfo.mobile,
+        customer_postal_code: postalCode,
         payment_type: frequency.includes('One Time') ? 'one_time' : 'recurring',
         interval: getInterval(),
         payment_method_id: paymentMethod.id
@@ -138,6 +153,23 @@ const PaymentForm = ({
     }
   };
 
+  // Common options for Stripe Elements
+  const cardElementOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#ffffff',
+        '::placeholder': {
+          color: '#aab7c4',
+        },
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a',
+      },
+    },
+  };
+
   return (
     <form onSubmit={handleSubmit} className="payment-form">
       <div className="secure-badge">
@@ -184,32 +216,55 @@ const PaymentForm = ({
       {/* Only show the payment form if payment is not successful yet */}
       {!success && (
         <>
-          <div>
+          
             <label>
               <CreditCard size={18} className="icon" />
-              Card Details
+              Card Number
             </label>
             <div className="card-element-container">
-              <CardElement options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#ffffff',
-                    '::placeholder': {
-                      color: '#aab7c4',
-                    },
-                  },
-                  invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a',
-                  },
-                },
-              }} />
+              <CardNumberElement options={cardElementOptions} />
+            </div>
+        
+
+          <div className="form-row ">
+            <div className="form-group">
+              <label>
+                <CreditCard size={18} className="icon" />
+                Expiration Date
+              </label>
+              <div className="card-element-container">
+                <CardExpiryElement options={cardElementOptions} />
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label>
+                <CreditCard size={18} className="icon" />
+                CVC
+              </label>
+              <div className="card-element-container">
+                <CardCvcElement options={cardElementOptions} />
+              </div>
             </div>
           </div>
+
+            <label htmlFor="postal-code">
+              <MapPin size={18} className="icon" />
+              Postal Code
+            </label>
+            <input
+              id="postal-code"
+              type="text"
+              className="postal-code-input"
+              value={postalCode}
+              onChange={handlePostalCodeChange}
+              placeholder="e.g. A1A 1A1"
+              autoComplete="postal-code"
+            />
+
           <button
             type="submit"
-            disabled={!stripe || processing}
+            disabled={!stripe || processing || !postalCode}
             className={`payment-button ${processing ? 'processing' : ''}`}
           >
             {processing ? (
@@ -221,11 +276,10 @@ const PaymentForm = ({
               <span>Pay Now</span>
             )}
           </button>
-
         </>
       )}
     </form>
   );
 };
 
-export default PaymentForm;
+export default CustomizedPaymentForm;

@@ -23,12 +23,12 @@ import {
   AlertTriangle,
   AlertCircle,
 } from "lucide-react"
-import PaymentForm from "./PaymentForm"
+import CustomizedPaymentForm from "./PaymentForm"
 import "./BookingForm.css"
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY  || 'pk_test_51QrleQQqAipzKUklfeY5FfeTWRXARESct5Csb3KBNkQW8xLzL2Fp8NmrhHqQMumQ8hwQoUuEqsO0KF1mmQHB5ST200VQx6CXdT');
 const baseUrl = process.env.NODE_ENV === 'development'
 ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
 : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
@@ -1485,7 +1485,7 @@ export default function BookingForm() {
                   {/* Stripe Payment Form */}
                 <Elements stripe={stripePromise} options={{ locale: 'en-CA' }}>
                   <div className="payment-form-container">
-                    <PaymentForm 
+                    <CustomizedPaymentForm 
                       customerInfo={personalInfo}
                       amount={bookingSummary.initialCleaning}
                       frequency={frequency}
