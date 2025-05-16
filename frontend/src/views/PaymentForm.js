@@ -204,7 +204,6 @@ const PaymentForm = ({
                     iconColor: '#fa755a',
                   },
                 },
-                locale: 'en-CA',
               }} />
             </div>
           </div>

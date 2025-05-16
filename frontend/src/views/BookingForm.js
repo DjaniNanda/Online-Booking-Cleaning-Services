@@ -867,7 +867,9 @@ export default function BookingForm() {
                         <option value="501 - 1000 Sq.Ft">501 - 1000 Sq.Ft</option>
                         <option value="1001 - 1500 Sq.Ft">1001 - 1500 Sq.Ft</option>
                         <option value="1501 - 2000 Sq.Ft">1501 - 2000 Sq.Ft</option>
-                        <option value="2001+ Sq.Ft">2001+ Sq.Ft</option>
+                        <option value="2001 - 2500 Sq.Ft">2001 - 2500 Sq.Ft</option>
+                        <option value="2501 - 3000 Sq.Ft">2501 - 3000 Sq.Ft</option>
+                        <option value="3001 - 3500 Sq.Ft">3001 - 3500 Sq.Ft</option>
                       </select>
                     </div>
                   </div>
@@ -1478,6 +1480,7 @@ export default function BookingForm() {
                   )}
 
                   {/* Stripe Payment Form */}
+                  <Elements stripe={stripePromise} options={{ locale: 'en-CA' }}></Elements>
                   <div className="payment-form-container">
                     <PaymentForm 
                       customerInfo={personalInfo}
