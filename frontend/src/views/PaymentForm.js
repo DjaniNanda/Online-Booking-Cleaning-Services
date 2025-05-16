@@ -204,6 +204,11 @@ const PaymentForm = ({
                     iconColor: '#fa755a',
                   },
                 },
+                // Update ZIP code validation to allow alphanumeric input
+                zipCode: {
+                  required: true,
+                  checkValid: false, // Disable client-side validation for zip format
+                },
               }} />
             </div>
           </div>
@@ -221,15 +226,6 @@ const PaymentForm = ({
               <span>Pay Now</span>
             )}
           </button>
-
-          <div className="payment-footer">
-            <p>Your payment is secured with industry-standard encryption</p>
-            <div className="cards-accepted">
-              <img src="https://cdn.jsdelivr.net/gh/stripe/awesome-stripe/resources/svg/visa.svg" alt="Visa" />
-              <img src="https://cdn.jsdelivr.net/gh/stripe/awesome-stripe/resources/svg/mastercard.svg" alt="Mastercard" />
-              <img src="https://cdn.jsdelivr.net/gh/stripe/awesome-stripe/resources/svg/amex.svg" alt="Amex" />
-            </div>
-          </div>
         </>
       )}
     </form>
