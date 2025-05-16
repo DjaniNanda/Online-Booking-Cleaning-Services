@@ -68,13 +68,6 @@ function Footer() {
               <a href="#" aria-label="Twitter"><i className="bi bi-twitter"></i></a>
               <a href="#" aria-label="LinkedIn"><i className="bi bi-linkedin"></i></a>
             </div>
-            <div className="newsletter">
-              <h4>Subscribe to our newsletter</h4>
-              <div className="newsletter-form">
-                <input type="email" placeholder="Email address" />
-                <button type="submit">Subscribe</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
