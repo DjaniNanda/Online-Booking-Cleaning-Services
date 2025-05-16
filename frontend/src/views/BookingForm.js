@@ -25,7 +25,10 @@ import {
 } from "lucide-react"
 import PaymentForm from "./PaymentForm"
 import "./BookingForm.css"
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 const baseUrl = process.env.NODE_ENV === 'development'
 ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
 : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
