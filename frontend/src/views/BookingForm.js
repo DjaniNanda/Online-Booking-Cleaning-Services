@@ -1483,7 +1483,7 @@ export default function BookingForm() {
                   )}
 
                   {/* Stripe Payment Form */}
-                  <Elements stripe={stripePromise} options={{ locale: 'en-CA' }}></Elements>
+                <Elements stripe={stripePromise} options={{ locale: 'en-CA' }}>
                   <div className="payment-form-container">
                     <PaymentForm 
                       customerInfo={personalInfo}
@@ -1493,7 +1493,7 @@ export default function BookingForm() {
                       onPaymentError={handlePaymentError}
                     />
                   </div>
-
+                  </Elements>
                   <div className="form-actions">
                     <button type="button" onClick={prevStep} className="btn btn-secondary">
                       Back
