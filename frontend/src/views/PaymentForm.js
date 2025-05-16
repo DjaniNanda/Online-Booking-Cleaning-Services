@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { 
+  useStripe, 
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement
+} from '@stripe/react-stripe-js';
 import { Shield, CreditCard, AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 import './PaymentForm.css';
 
@@ -15,6 +21,8 @@ const PaymentForm = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [postalCode, setPostalCode] = useState('');
+  
   const baseUrl = process.env.NODE_ENV === 'development'
     ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
     : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
@@ -40,21 +48,18 @@ const PaymentForm = ({
     setError(null);
     setSuccess(null);
 
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      setProcessing(false);
-      return;
-    }
-
     try {
-      // Create payment method
+      // Create payment method with custom form elements
       const { error: paymentMethodError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
-        card: cardElement,
+        card: elements.getElement(CardNumberElement),
         billing_details: {
           name: `${customerInfo.firstName} ${customerInfo.lastName}`,
           email: customerInfo.email,
           phone: customerInfo.mobile,
+          address: {
+            postal_code: postalCode
+          }
         },
       });
 
@@ -138,6 +143,24 @@ const PaymentForm = ({
     }
   };
 
+  // Common styling for Stripe elements
+  const elementStyle = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#ffffff',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        '::placeholder': {
+          color: '#aab7c4',
+        },
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a',
+      },
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="payment-form">
       <div className="secure-badge">
@@ -185,33 +208,43 @@ const PaymentForm = ({
       {!success && (
         <>
           <div>
-            <label>
+            <label className="input-label">
               <CreditCard size={18} className="icon" />
-              Card Details
+              Card Number
             </label>
-            <div className="card-element-container">
-              <CardElement options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#ffffff',
-                    '::placeholder': {
-                      color: '#aab7c4',
-                    },
-                  },
-                  invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a',
-                  },
-                },
-                // Update ZIP code validation to allow alphanumeric input
-                zipCode: {
-                  required: true,
-                  checkValid: false, // Disable client-side validation for zip format
-                },
-              }} />
+            <div className="stripe-element-container">
+              <CardNumberElement options={elementStyle} />
+            </div>
+            
+            <div className="card-row">
+              <div className="card-expiry">
+                <label className="input-label">Expiry Date</label>
+                <div className="stripe-element-container">
+                  <CardExpiryElement options={elementStyle} />
+                </div>
+              </div>
+              
+              <div className="card-cvc">
+                <label className="input-label">CVC</label>
+                <div className="stripe-element-container">
+                  <CardCvcElement options={elementStyle} />
+                </div>
+              </div>
+            </div>
+            
+            <div className="postal-code">
+              <label className="input-label">Postal Code</label>
+              <input 
+                type="text" 
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                placeholder="Enter postal code"
+                className="postal-code-input"
+                required
+              />
             </div>
           </div>
+          
           <button
             type="submit"
             disabled={!stripe || processing}
@@ -226,6 +259,15 @@ const PaymentForm = ({
               <span>Pay Now</span>
             )}
           </button>
+
+          <div className="payment-footer">
+            <p>Your payment is secured with industry-standard encryption</p>
+            <div className="cards-accepted">
+              <img src="https://cdn.jsdelivr.net/gh/stripe/awesome-stripe/resources/svg/visa.svg" alt="Visa" />
+              <img src="https://cdn.jsdelivr.net/gh/stripe/awesome-stripe/resources/svg/mastercard.svg" alt="Mastercard" />
+              <img src="https://cdn.jsdelivr.net/gh/stripe/awesome-stripe/resources/svg/amex.svg" alt="Amex" />
+            </div>
+          </div>
         </>
       )}
     </form>
