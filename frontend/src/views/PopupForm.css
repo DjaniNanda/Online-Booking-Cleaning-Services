@@ -567,6 +567,27 @@ textarea::placeholder {
   font-size: 14px;
   border-left: 4px solid #d9534f;
 }
+.error-banner {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #fecaca;
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 4px;
+  display: block;
+}
 
 /* Spinner animation */
 .spinner {

@@ -763,7 +763,7 @@ Special Instructions:
 -------------------
 {booking.special_instructions}
 
-If you need to modify or cancel your booking, please contact us at lovelyserenitycorp@gmail.com or call +1(647)913-7817 at least 24 hours before your scheduled service.
+If you need to modify or cancel your booking, please contact us at lovelyserenitycorporation@gmail.com or call +1(647)913-7817 at least 24 hours before your scheduled service.
 
 Thank you for choosing our cleaning service!
 
@@ -778,7 +778,7 @@ Lovely Serenity Corp
             send_mail(
                 subject=subject,
                 message=message,
-                from_email='lovelyserenittycorp@gmail.com',  # Replace with your actual sender email
+                from_email='lovelyserenitycorporation@gmail.com',  # Replace with your actual sender email
                 recipient_list=[recipient_email],
                 fail_silently=False,
             )

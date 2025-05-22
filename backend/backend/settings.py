@@ -131,9 +131,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'djaninandapetrus@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'fksq zrer nuzz dvvw'  # Your email password or app password
-DEFAULT_FROM_EMAIL = 'djaninandapetrus@gmail.com'
+EMAIL_HOST_USER = 'lovelyserenitycorporation@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'gxty vsbv ddoq qezq'  # Your email password or app password
+DEFAULT_FROM_EMAIL = 'lovelyserenitycorporation@gmail.com'
 
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')

@@ -35,12 +35,59 @@ function PopupForm({ isOpen, setIsOpen }) {
   const [quoteDate, setQuoteDate] = useState(null)
   const [currentStep, setCurrentStep] = useState(1)
   const [formTouched, setFormTouched] = useState(false)
+  const [validationErrors, setValidationErrors] = useState({})
 
   // Get the appropriate base URL from environment variables
   const baseUrl =
     process.env.NODE_ENV === "development"
       ? process.env.REACT_APP_API_BASE_URL_LOCAL || "http://localhost:8000"
       : process.env.REACT_APP_API_BASE_URL_DEPLOY || "https://lovelyserenitybackend.onrender.com"
+
+  // Validation function for each step
+  const validateStep = (step) => {
+    const errors = {}
+    
+    if (step === 1) {
+      // Step 1: Personal Information
+      if (!formData.firstname.trim()) {
+        errors.firstname = "First name is required"
+      }
+      if (!formData.lastname.trim()) {
+        errors.lastname = "Last name is required"
+      }
+      if (!formData.email.trim()) {
+        errors.email = "Email is required"
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        errors.email = "Please enter a valid email address"
+      }
+      if (!formData.phone.trim()) {
+        errors.phone = "Phone number is required"
+      }
+    } else if (step === 2) {
+      // Step 2: Property Details
+      if (!formData.frequency) {
+        errors.frequency = "Frequency is required"
+      }
+      if (!formData.squarefeet) {
+        errors.squarefeet = "Square footage is required"
+      }
+      if (!formData.bedroom) {
+        errors.bedroom = "Number of bedrooms is required"
+      }
+      if (!formData.bathroom) {
+        errors.bathroom = "Number of bathrooms is required"
+      }
+    }
+    
+    return errors
+  }
+
+  // Clear validation errors when form data changes
+  useEffect(() => {
+    if (Object.keys(validationErrors).length > 0) {
+      setValidationErrors({})
+    }
+  }, [formData])
 
   // Fetch price estimate whenever form data changes
   useEffect(() => {
@@ -173,13 +220,25 @@ function PopupForm({ isOpen, setIsOpen }) {
       setIsPriceLoading(false)
     }
   }
+
   // Handle close button click
   const handleClose = () => {
     setIsOpen(false)
   }
 
-  // Navigate to next step
+  // Navigate to next step with validation
   const goToNextStep = () => {
+    const errors = validateStep(currentStep)
+    
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors)
+      setErrorMessage("Please fill in all required fields to continue")
+      return
+    }
+    
+    setValidationErrors({})
+    setErrorMessage("")
+    
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1)
     }
@@ -187,6 +246,9 @@ function PopupForm({ isOpen, setIsOpen }) {
 
   // Navigate to previous step
   const goToPrevStep = () => {
+    setValidationErrors({})
+    setErrorMessage("")
+    
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
@@ -224,6 +286,13 @@ function PopupForm({ isOpen, setIsOpen }) {
           </div>
         </div>
 
+        {/* Error message display */}
+        {errorMessage && (
+          <div className="error-banner">
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleFormSubmit}>
           {/* Step 1: Personal Information */}
           <div className={`form-step ${currentStep === 1 ? "active" : ""}`}>
@@ -241,7 +310,11 @@ function PopupForm({ isOpen, setIsOpen }) {
                   onChange={handleInputChange}
                   maxLength={60}
                   required
+                  className={validationErrors.firstname ? "error" : ""}
                 />
+                {validationErrors.firstname && (
+                  <span className="error-text">{validationErrors.firstname}</span>
+                )}
               </div>
               <div className="form-group half">
                 <label htmlFor="lastname">
@@ -256,7 +329,11 @@ function PopupForm({ isOpen, setIsOpen }) {
                   onChange={handleInputChange}
                   maxLength={60}
                   required
+                  className={validationErrors.lastname ? "error" : ""}
                 />
+                {validationErrors.lastname && (
+                  <span className="error-text">{validationErrors.lastname}</span>
+                )}
               </div>
             </div>
 
@@ -274,7 +351,11 @@ function PopupForm({ isOpen, setIsOpen }) {
                   onChange={handleInputChange}
                   required
                   maxLength={100}
+                  className={validationErrors.email ? "error" : ""}
                 />
+                {validationErrors.email && (
+                  <span className="error-text">{validationErrors.email}</span>
+                )}
               </div>
               <div className="form-group half">
                 <label htmlFor="phone1">
@@ -289,7 +370,11 @@ function PopupForm({ isOpen, setIsOpen }) {
                   onChange={handleInputChange}
                   maxLength={16}
                   required
+                  className={validationErrors.phone ? "error" : ""}
                 />
+                {validationErrors.phone && (
+                  <span className="error-text">{validationErrors.phone}</span>
+                )}
               </div>
             </div>
 
@@ -313,12 +398,16 @@ function PopupForm({ isOpen, setIsOpen }) {
                   value={formData.frequency}
                   onChange={handleInputChange}
                   required
+                  className={validationErrors.frequency ? "error" : ""}
                 >
                   <option value="weekly">Every 1 Week (discount 20%)</option>
                   <option value="biweekly">Every 2 Week (discount 15%)</option>
                   <option value="monthly">Every 4 Week (discount 10%)</option>
                   <option value="onetime">One Time (Deep)</option>
                 </select>
+                {validationErrors.frequency && (
+                  <span className="error-text">{validationErrors.frequency}</span>
+                )}
               </div>
               <div className="form-group half">
                 <label htmlFor="squarefeet">
@@ -330,6 +419,7 @@ function PopupForm({ isOpen, setIsOpen }) {
                   value={formData.squarefeet}
                   onChange={handleInputChange}
                   required
+                  className={validationErrors.squarefeet ? "error" : ""}
                 >
                   <option value="0 – 500 Sq Ft">0 – 500 Sq Ft</option>
                   <option value="501 – 1000 Sq Ft">501 – 1000 Sq Ft</option>
@@ -348,6 +438,9 @@ function PopupForm({ isOpen, setIsOpen }) {
                   <option value="7001 – 7500 Sq Ft">7001 – 7500 Sq Ft</option>
                   <option value="7501 – 8000 Sq Ft">7501 – 8000 Sq Ft</option>
                 </select>
+                {validationErrors.squarefeet && (
+                  <span className="error-text">{validationErrors.squarefeet}</span>
+                )}
               </div>
             </div>
             <div className="form-row">
@@ -355,7 +448,14 @@ function PopupForm({ isOpen, setIsOpen }) {
                 <label htmlFor="bedroom">
                   Bedroom <span className="required">*</span>
                 </label>
-                <select id="bedroom" name="bedroom" value={formData.bedroom} onChange={handleInputChange} required>
+                <select 
+                  id="bedroom" 
+                  name="bedroom" 
+                  value={formData.bedroom} 
+                  onChange={handleInputChange} 
+                  required
+                  className={validationErrors.bedroom ? "error" : ""}
+                >
                   <option value="1">One Bedroom</option>
                   <option value="2">Two Bedroom</option>
                   <option value="3">Three Bedroom</option>
@@ -363,12 +463,22 @@ function PopupForm({ isOpen, setIsOpen }) {
                   <option value="5">Five Bedroom</option>
                   <option value="6">Six Bedroom</option>
                 </select>
+                {validationErrors.bedroom && (
+                  <span className="error-text">{validationErrors.bedroom}</span>
+                )}
               </div>
               <div className="form-group half">
                 <label htmlFor="bathroom">
                   Bathroom <span className="required">*</span>
                 </label>
-                <select id="bathroom" name="bathroom" value={formData.bathroom} onChange={handleInputChange} required>
+                <select 
+                  id="bathroom" 
+                  name="bathroom" 
+                  value={formData.bathroom} 
+                  onChange={handleInputChange} 
+                  required
+                  className={validationErrors.bathroom ? "error" : ""}
+                >
                   <option value="1">One Bathroom</option>
                   <option value="2">Two Bathroom</option>
                   <option value="3">Three Bathroom</option>
@@ -377,6 +487,9 @@ function PopupForm({ isOpen, setIsOpen }) {
                   <option value="6">Six Bathroom</option>
                   <option value="7">No Bathroom</option>
                 </select>
+                {validationErrors.bathroom && (
+                  <span className="error-text">{validationErrors.bathroom}</span>
+                )}
               </div>
             </div>
 
