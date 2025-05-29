@@ -28,10 +28,10 @@ import "./BookingForm.css"
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY  || 'pk_test_51QrleQQqAipzKUklfeY5FfeTWRXARESct5Csb3KBNkQW8xLzL2Fp8NmrhHqQMumQ8hwQoUuEqsO0KF1mmQHB5ST200VQx6CXdT');
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY );
 const baseUrl = process.env.NODE_ENV === 'development'
 ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
-: (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
+: (process.env.REACT_APP_API_BASE_URL_DEPLOY );
 
 export default function BookingForm() {
   const [activeStep, setActiveStep] = useState(1)

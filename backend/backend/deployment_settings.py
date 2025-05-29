@@ -22,6 +22,7 @@ MIDDLEWARE = [
 ]
 CORS_ALLOWED_ORIGINS = [
    "https://lovelyserenitycorp.com", 
+   "https://lovelyserenitycorp.vercel.app",
    "https://www.lovelyserenitycorp.com", # Adjust if your frontend is hosted elsewhere
 ]
 STORAGES = {

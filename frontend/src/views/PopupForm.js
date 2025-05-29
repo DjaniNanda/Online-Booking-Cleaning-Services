@@ -41,7 +41,7 @@ function PopupForm({ isOpen, setIsOpen }) {
   const baseUrl =
     process.env.NODE_ENV === "development"
       ? process.env.REACT_APP_API_BASE_URL_LOCAL || "http://localhost:8000"
-      : process.env.REACT_APP_API_BASE_URL_DEPLOY || "https://lovelyserenitybackend.onrender.com"
+      : process.env.REACT_APP_API_BASE_URL_DEPLOY 
 
   // Validation function for each step
   const validateStep = (step) => {

@@ -18,7 +18,7 @@ const CustomizedPaymentForm = ({
   const [postalCode, setPostalCode] = useState('');
   const baseUrl = process.env.NODE_ENV === 'development'
     ? (process.env.REACT_APP_API_BASE_URL_LOCAL || 'http://localhost:8000')
-    : (process.env.REACT_APP_API_BASE_URL_DEPLOY || 'https://lovelyserenitybackend.onrender.com');
+    : (process.env.REACT_APP_API_BASE_URL_DEPLOY );
 
   // Convert amount to a number if it's not already and convert to cents
   const numericAmount = Math.round((typeof amount === 'number' ? amount : parseFloat(amount) || 0) * 100);
