@@ -232,7 +232,7 @@ class QuoteRequestView(APIView):
                 subject=subject,
                 message=plain_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=['djaninandapetrus@gmail.com'],
+                recipient_list=['lovelyserenitycorporation@gmail.com'],
                 html_message=html_message,
                 fail_silently=False,
             )
