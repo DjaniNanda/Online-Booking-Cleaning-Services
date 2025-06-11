@@ -357,6 +357,7 @@ body {
 .form-textarea:focus {
   outline: none;
   border-color: rgb(255, 215, 0); /* Yellow */
+  text-decoration: black;
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2); /* Yellow with opacity */
 }
 
