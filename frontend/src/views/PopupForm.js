@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Check, Loader2, ArrowRight, DollarSign } from "lucide-react"
+import { X, Check, Loader2, ArrowRight, DollarSign, LogOut } from "lucide-react"
 import "./PopupForm.css"
 
 function PopupForm({ isOpen, setIsOpen }) {
@@ -379,6 +379,11 @@ function PopupForm({ isOpen, setIsOpen }) {
             </div>
 
             <div className="form-navigation">
+              <div></div> {/* Empty div for spacing */}
+              <button type="button" className="exit-button" onClick={handleClose}>
+                <LogOut size={16} />
+                Exit
+              </button>
               <button type="button" className="next-button" onClick={goToNextStep}>
                 Next <ArrowRight size={16} />
               </button>
@@ -496,6 +501,10 @@ function PopupForm({ isOpen, setIsOpen }) {
             <div className="form-navigation">
               <button type="button" className="back-button" onClick={goToPrevStep}>
                 Back
+              </button>
+              <button type="button" className="exit-button" onClick={handleClose}>
+                <LogOut size={16} />
+                Exit
               </button>
               <button type="button" className="next-button" onClick={goToNextStep}>
                 Next <ArrowRight size={16} />
@@ -752,6 +761,10 @@ function PopupForm({ isOpen, setIsOpen }) {
             <div className="form-navigation">
               <button type="button" className="back-button" onClick={goToPrevStep}>
                 Back
+              </button>
+              <button type="button" className="exit-button" onClick={handleClose}>
+                <LogOut size={16} />
+                Exit
               </button>
               <button 
                 type="submit" 

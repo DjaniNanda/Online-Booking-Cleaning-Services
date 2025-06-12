@@ -383,11 +383,14 @@ textarea::placeholder {
 .form-navigation {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-top: 30px;
+  gap: 15px;
 }
 
 .back-button,
-.next-button {
+.next-button,
+.exit-button {
   padding: 12px 24px;
   border-radius: 8px;
   font-size: 16px;
@@ -397,6 +400,8 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 .back-button {
@@ -422,6 +427,19 @@ textarea::placeholder {
   box-shadow: 0 6px 15px rgba(34, 56, 96, 0.3);
 }
 
+.exit-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+}
+
+.exit-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(220, 53, 69, 0.3);
+}
+
 /* Submit button */
 .submit-button {
   background-color: #223860;
@@ -438,6 +456,7 @@ textarea::placeholder {
   gap: 8px;
   transition: all 0.3s;
   box-shadow: 0 4px 10px rgba(34, 56, 96, 0.2);
+  flex: 1;
 }
 
 .submit-button:hover {
@@ -567,6 +586,7 @@ textarea::placeholder {
   font-size: 14px;
   border-left: 4px solid #d9534f;
 }
+
 .error-banner {
   background-color: #fee2e2;
   color: #dc2626;
@@ -648,6 +668,7 @@ textarea::placeholder {
 
   .back-button,
   .next-button,
+  .exit-button,
   .submit-button {
     width: 100%;
     justify-content: center;
