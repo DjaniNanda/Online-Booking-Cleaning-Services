@@ -4,10 +4,21 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 def health_check(request):
-    return JsonResponse({
-        "status": "ok", 
-        "timestamp": timezone.now().isoformat()
-    })
+    try:
+        # This will make a simple database query to keep Supabase active
+        from django.contrib.auth.models import User
+        user_count = User.objects.count()
+        
+        return JsonResponse({
+            "status": "ok",
+            "timestamp": timezone.now().isoformat(),
+            "database": "connected"
+        })
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "error": str(e)
+        }, status=500)
     
 urlpatterns = [
     path('admin/', admin.site.urls),
