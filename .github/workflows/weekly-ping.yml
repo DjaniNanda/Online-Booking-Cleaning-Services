@@ -1,0 +1,39 @@
+name: Weekly Backend Ping
+
+on:
+  schedule:
+    # Runs every Sunday at 10:00 UTC (adjust time as needed)
+    - cron: '0 10 * * 0'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Backend
+        run: |
+          echo "Pinging backend to keep it active..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}")
+          echo "Response code: $response"
+          
+          echo "Response code received: $response"
+          
+          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ] || [ $response -eq 404 ]; then
+            echo "✅ Backend is responding (got response code $response)"
+          else
+            echo "❌ Backend returned unexpected response code: $response"
+            exit 1
+          fi
+
+      - name: Ping Health Check Endpoint (if available)
+        run: |
+          echo "Attempting to ping health check endpoint..."
+          health_response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}/health/" || echo "000")
+          echo "Health check response code: $health_response"
+          
+          if [ $health_response -eq 200 ]; then
+            echo "✅ Health check endpoint is responding"
+          else
+            echo "ℹ️ Health check endpoint not available or returned: $health_response"
+          fi
