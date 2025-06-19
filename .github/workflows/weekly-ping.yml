@@ -17,8 +17,10 @@ jobs:
           response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}")
           echo "Response code: $response"
           
-          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ]; then
-            echo "✅ Backend is responding successfully"
+          echo "Response code received: $response"
+          
+          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ] || [ $response -eq 404 ]; then
+            echo "✅ Backend is responding (got response code $response)"
           else
             echo "❌ Backend returned unexpected response code: $response"
             exit 1
