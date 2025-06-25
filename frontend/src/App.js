@@ -7,7 +7,7 @@ import Footer from "./views/Footer";
 import Homepage from './views/Homepage.js';
 import BookingForm from "./views/BookingForm.js";
 import ScrollToTop from './views/ScrollToTop';
-
+import GoogleTranslate from './components/GoogleTranslate';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
@@ -15,6 +15,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <GoogleTranslate />
       <Navbar />
       <Routes>
         <Route path="/" element={<Homepage />} />
