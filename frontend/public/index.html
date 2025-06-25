@@ -24,16 +24,87 @@
     <title>LovelySerenityCorp</title>
     
     <style>
-      /* Custom styles for Google Translate widget */
-      .translate-container {
+      /* YouTube-style language selector */
+      .language-selector {
         position: fixed;
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
         z-index: 1000;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 5px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+      
+      .language-dropdown {
+        background: white;
+        border: 1px solid #d3d3d3;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #0f0f0f;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+        min-width: 120px;
+      }
+      
+      .language-dropdown:hover {
+        background: #f8f9fa;
+        border-color: #909090;
+      }
+      
+      .language-dropdown.active {
+        background: #f0f8ff;
+        border-color: #4285f4;
+      }
+      
+      .language-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #d3d3d3;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 200px;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1001;
+        margin-top: 4px;
+      }
+      
+      .language-menu.show {
+        display: block;
+      }
+      
+      .language-option {
+        padding: 12px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #0f0f0f;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.1s ease;
+      }
+      
+      .language-option:hover {
+        background: #f8f9fa;
+      }
+      
+      .language-option.selected {
+        background: #e8f0fe;
+        color: #1a73e8;
+        font-weight: 500;
+      }
+      
+      .language-option:last-child {
+        border-bottom: none;
+      }
+      
+      /* Hide Google Translate default widget */
+      #google_translate_element {
+        display: none;
       }
       
       /* Hide Google Translate banner */
@@ -44,55 +115,52 @@
       body {
         top: 0 !important;
       }
-      
-      /* Style the translate dropdown */
-      .goog-te-gadget {
-        font-family: Arial, sans-serif;
-        font-size: 11px;
-        color: #666;
-        white-space: nowrap;
-      }
-      
-      .goog-te-gadget .goog-te-combo {
-        margin: 2px 0;
-        padding: 2px 4px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        font-size: 11px;
-      }
-      
-      /* Welcome message for translation */
-      .translation-notice {
-        background-color: #e3f2fd;
-        border: 1px solid #2196f3;
-        border-radius: 5px;
-        padding: 10px;
-        margin: 10px 0;
-        text-align: center;
-        display: block;
-      }
-      
-      .translation-notice.hidden {
-        display: none;
-      }
     </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     
-    <!-- Translation Notice -->
-    <div id="translation-notice" class="translation-notice">
-      <i class="fas fa-language"></i>
-      <strong>Welcome!</strong> This page can be translated into your language using the translator in the top-right corner.
-      <button onclick="hideTranslationNotice()" class="btn btn-sm btn-outline-primary ms-2">
-        <i class="fas fa-times"></i> Got it
-      </button>
+
+    
+    <!-- YouTube-style Language Selector -->
+    <div class="language-selector">
+      <div class="language-dropdown" onclick="toggleLanguageMenu()">
+        <i class="fas fa-globe"></i>
+        <span id="current-language">English</span>
+        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+      </div>
+      <div class="language-menu" id="language-menu">
+        <div class="language-option selected" onclick="changeLanguage('en', 'English')">English</div>
+        <div class="language-option" onclick="changeLanguage('es', 'Español')">Español</div>
+        <div class="language-option" onclick="changeLanguage('fr', 'Français')">Français</div>
+        <div class="language-option" onclick="changeLanguage('de', 'Deutsch')">Deutsch</div>
+        <div class="language-option" onclick="changeLanguage('it', 'Italiano')">Italiano</div>
+        <div class="language-option" onclick="changeLanguage('pt', 'Português')">Português</div>
+        <div class="language-option" onclick="changeLanguage('zh', '中文')">中文</div>
+        <div class="language-option" onclick="changeLanguage('ja', '日本語')">日本語</div>
+        <div class="language-option" onclick="changeLanguage('ko', '한국어')">한국어</div>
+        <div class="language-option" onclick="changeLanguage('ar', 'العربية')">العربية</div>
+        <div class="language-option" onclick="changeLanguage('hi', 'हिन्दी')">हिन्दी</div>
+        <div class="language-option" onclick="changeLanguage('ru', 'Русский')">Русский</div>
+        <div class="language-option" onclick="changeLanguage('nl', 'Nederlands')">Nederlands</div>
+        <div class="language-option" onclick="changeLanguage('sv', 'Svenska')">Svenska</div>
+        <div class="language-option" onclick="changeLanguage('da', 'Dansk')">Dansk</div>
+        <div class="language-option" onclick="changeLanguage('no', 'Norsk')">Norsk</div>
+        <div class="language-option" onclick="changeLanguage('fi', 'Suomi')">Suomi</div>
+        <div class="language-option" onclick="changeLanguage('pl', 'Polski')">Polski</div>
+        <div class="language-option" onclick="changeLanguage('tr', 'Türkçe')">Türkçe</div>
+        <div class="language-option" onclick="changeLanguage('el', 'Ελληνικά')">Ελληνικά</div>
+        <div class="language-option" onclick="changeLanguage('he', 'עברית')">עברית</div>
+        <div class="language-option" onclick="changeLanguage('th', 'ไทย')">ไทย</div>
+        <div class="language-option" onclick="changeLanguage('vi', 'Tiếng Việt')">Tiếng Việt</div>
+        <div class="language-option" onclick="changeLanguage('id', 'Bahasa Indonesia')">Bahasa Indonesia</div>
+        <div class="language-option" onclick="changeLanguage('ms', 'Bahasa Melayu')">Bahasa Melayu</div>
+        <div class="language-option" onclick="changeLanguage('tl', 'Filipino')">Filipino</div>
+      </div>
     </div>
     
-    <!-- Google Translate Widget Container -->
-    <div class="translate-container">
-      <div id="google_translate_element"></div>
-    </div>
+    <!-- Hidden Google Translate Widget -->
+    <div id="google_translate_element"></div>
     
     <div id="root">
       <!-- Sample content to demonstrate translation -->
@@ -105,8 +173,10 @@
   
     <!-- Google Translate Script -->
     <script type="text/javascript">
+      let translateWidget = null;
+      
       function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
+        translateWidget = new google.translate.TranslateElement({
           pageLanguage: 'en',
           includedLanguages: 'es,fr,de,it,pt,zh,ja,ko,ar,hi,ru,nl,sv,da,no,fi,pl,tr,el,he,th,vi,id,ms,tl',
           layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
@@ -115,35 +185,65 @@
         }, 'google_translate_element');
       }
       
-      // Function to hide translation notice
-      function hideTranslationNotice() {
-        document.getElementById('translation-notice').classList.add('hidden');
-        localStorage.setItem('translation-notice-hidden', 'true');
+      // YouTube-style language selector functions
+      function toggleLanguageMenu() {
+        const menu = document.getElementById('language-menu');
+        const dropdown = document.querySelector('.language-dropdown');
+        
+        if (menu.classList.contains('show')) {
+          menu.classList.remove('show');
+          dropdown.classList.remove('active');
+        } else {
+          menu.classList.add('show');
+          dropdown.classList.add('active');
+        }
       }
       
-      // Check if user has already dismissed the notice
-      document.addEventListener('DOMContentLoaded', function() {
-        if (localStorage.getItem('translation-notice-hidden') === 'true') {
-          document.getElementById('translation-notice').classList.add('hidden');
-        }
+      function changeLanguage(langCode, langName) {
+        // Update the display
+        document.getElementById('current-language').textContent = langName;
         
-        // Auto-detect user's language and show translation suggestion
-        if (navigator.language && navigator.language !== 'en' && navigator.language !== 'en-US') {
-          setTimeout(function() {
-            const notice = document.getElementById('translation-notice');
-            if (notice && !notice.classList.contains('hidden')) {
-              notice.style.backgroundColor = '#fff3cd';
-              notice.style.borderColor = '#ffc107';
-              notice.innerHTML = `
-                <i class="fas fa-language"></i>
-                <strong>Translation Available!</strong> We detected your browser language is "${navigator.language}". 
-                You can translate this page using the translator in the top-right corner.
-                <button onclick="hideTranslationNotice()" class="btn btn-sm btn-outline-warning ms-2">
-                  <i class="fas fa-times"></i> Dismiss
-                </button>
-              `;
+        // Update selected option
+        document.querySelectorAll('.language-option').forEach(option => {
+          option.classList.remove('selected');
+        });
+        event.target.classList.add('selected');
+        
+        // Close menu
+        document.getElementById('language-menu').classList.remove('show');
+        document.querySelector('.language-dropdown').classList.remove('active');
+        
+        // Trigger Google Translate
+        if (langCode === 'en') {
+          // Return to original language
+          const selectElement = document.querySelector('.goog-te-combo');
+          if (selectElement) {
+            selectElement.value = '';
+            selectElement.dispatchEvent(new Event('change'));
+          }
+        } else {
+          // Translate to selected language
+          setTimeout(() => {
+            const selectElement = document.querySelector('.goog-te-combo');
+            if (selectElement) {
+              selectElement.value = langCode;
+              selectElement.dispatchEvent(new Event('change'));
             }
-          }, 2000);
+          }, 100);
+        }
+      }
+      
+      // Function to hide translation notice (kept for compatibility)
+      function hideTranslationNotice() {
+        // Function kept for any remaining references
+      }
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', function(event) {
+        const languageSelector = document.querySelector('.language-selector');
+        if (!languageSelector.contains(event.target)) {
+          document.getElementById('language-menu').classList.remove('show');
+          document.querySelector('.language-dropdown').classList.remove('active');
         }
       });
     </script>
