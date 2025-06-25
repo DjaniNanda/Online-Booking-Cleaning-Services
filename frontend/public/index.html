@@ -18,12 +18,138 @@
     <!-- Font Awesome (Latest) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   
+    <!-- Google Translate Meta Tag -->
+    <meta name="google-translate-customization" content="9f841e7780177523-3214ceb76f765f38-gc38c6fe6f9d06436-c">
   
-  <title>LovelySerenityCorp</title>
+    <title>LovelySerenityCorp</title>
+    
+    <style>
+      /* Custom styles for Google Translate widget */
+      .translate-container {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 5px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+      
+      /* Hide Google Translate banner */
+      .goog-te-banner-frame {
+        display: none !important;
+      }
+      
+      body {
+        top: 0 !important;
+      }
+      
+      /* Style the translate dropdown */
+      .goog-te-gadget {
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        color: #666;
+        white-space: nowrap;
+      }
+      
+      .goog-te-gadget .goog-te-combo {
+        margin: 2px 0;
+        padding: 2px 4px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+      
+      /* Welcome message for translation */
+      .translation-notice {
+        background-color: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 10px 0;
+        text-align: center;
+        display: block;
+      }
+      
+      .translation-notice.hidden {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    
+    <!-- Translation Notice -->
+    <div id="translation-notice" class="translation-notice">
+      <i class="fas fa-language"></i>
+      <strong>Welcome!</strong> This page can be translated into your language using the translator in the top-right corner.
+      <button onclick="hideTranslationNotice()" class="btn btn-sm btn-outline-primary ms-2">
+        <i class="fas fa-times"></i> Got it
+      </button>
+    </div>
+    
+    <!-- Google Translate Widget Container -->
+    <div class="translate-container">
+      <div id="google_translate_element"></div>
+    </div>
+    
+    <div id="root">
+      <!-- Sample content to demonstrate translation -->
+      <div class="container mt-4">
+        <h1>Lovely Serenity Corp</h1>
+        <p>Professional Home Cleaning Services</p>
+        <p>We provide top-quality cleaning services for your home. Our experienced team ensures your space is spotless and comfortable.</p>
+      </div>
+    </div>
+  
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'es,fr,de,it,pt,zh,ja,ko,ar,hi,ru,nl,sv,da,no,fi,pl,tr,el,he,th,vi,id,ms,tl',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false,
+          multilanguagePage: true
+        }, 'google_translate_element');
+      }
+      
+      // Function to hide translation notice
+      function hideTranslationNotice() {
+        document.getElementById('translation-notice').classList.add('hidden');
+        localStorage.setItem('translation-notice-hidden', 'true');
+      }
+      
+      // Check if user has already dismissed the notice
+      document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('translation-notice-hidden') === 'true') {
+          document.getElementById('translation-notice').classList.add('hidden');
+        }
+        
+        // Auto-detect user's language and show translation suggestion
+        if (navigator.language && navigator.language !== 'en' && navigator.language !== 'en-US') {
+          setTimeout(function() {
+            const notice = document.getElementById('translation-notice');
+            if (notice && !notice.classList.contains('hidden')) {
+              notice.style.backgroundColor = '#fff3cd';
+              notice.style.borderColor = '#ffc107';
+              notice.innerHTML = `
+                <i class="fas fa-language"></i>
+                <strong>Translation Available!</strong> We detected your browser language is "${navigator.language}". 
+                You can translate this page using the translator in the top-right corner.
+                <button onclick="hideTranslationNotice()" class="btn btn-sm btn-outline-warning ms-2">
+                  <i class="fas fa-times"></i> Dismiss
+                </button>
+              `;
+            }
+          }, 2000);
+        }
+      });
+    </script>
+    
+    <!-- Load Google Translate Script -->
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   
     <!-- ✅ Bootstrap Bundle with Popper.js (Needed for Dropdowns, Navbar, etc.) -->
     <script
