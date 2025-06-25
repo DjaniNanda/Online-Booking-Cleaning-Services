@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const GoogleTranslate = () => {
+const FunctionalTranslateWidget = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [sourceLanguage, setSourceLanguage] = useState('auto');
   const [targetLanguage, setTargetLanguage] = useState('en');
@@ -256,4 +256,4 @@ const GoogleTranslate = () => {
   );
 };
 
-export default GoogleTranslate;
+export default FunctionalTranslateWidget;
