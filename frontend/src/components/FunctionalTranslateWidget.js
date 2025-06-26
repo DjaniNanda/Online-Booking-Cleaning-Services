@@ -37,6 +37,13 @@ const FunctionalTranslateWidget = () => {
   // Close dropdowns when clicking outside AND hide widget when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Don't hide widget if clicking on dropdown items or buttons within the widget
+      if (event.target.closest('.dropdown-item') || 
+          event.target.closest('.btn') ||
+          event.target.closest('.dropdown-menu')) {
+        return;
+      }
+
       if (widgetRef.current && !widgetRef.current.contains(event.target)) {
         // Hide the entire widget when clicking outside
         setIsVisible(false);
@@ -243,7 +250,10 @@ const FunctionalTranslateWidget = () => {
           </div>
           <button 
             className="btn btn-sm p-1" 
-            onClick={() => setIsVisible(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsVisible(false);
+            }}
             style={{ 
               border: 'none', 
               background: 'transparent',
@@ -260,7 +270,8 @@ const FunctionalTranslateWidget = () => {
             <button 
               className="btn btn-outline-secondary btn-sm dropdown-toggle px-2 py-1" 
               type="button" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowSourceDropdown(!showSourceDropdown);
                 setShowTargetDropdown(false);
                 setShowOptionsDropdown(false);
@@ -281,7 +292,10 @@ const FunctionalTranslateWidget = () => {
                   <li key={lang.code}>
                     <button 
                       className="dropdown-item" 
-                      onClick={() => handleSourceLanguageChange(lang.code)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSourceLanguageChange(lang.code);
+                      }}
                       style={{ fontSize: '12px' }}
                     >
                       {lang.name}
@@ -299,7 +313,8 @@ const FunctionalTranslateWidget = () => {
             <button 
               className="btn btn-primary btn-sm dropdown-toggle px-2 py-1" 
               type="button" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowTargetDropdown(!showTargetDropdown);
                 setShowSourceDropdown(false);
                 setShowOptionsDropdown(false);
@@ -325,7 +340,10 @@ const FunctionalTranslateWidget = () => {
                   <li key={lang.code}>
                     <button 
                       className="dropdown-item" 
-                      onClick={() => handleTargetLanguageChange(lang.code)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTargetLanguageChange(lang.code);
+                      }}
                       style={{ fontSize: '12px' }}
                     >
                       {lang.name}
@@ -341,7 +359,10 @@ const FunctionalTranslateWidget = () => {
           {!isTranslated ? (
             <button 
               className="btn btn-primary btn-sm flex-fill"
-              onClick={translatePageWithWidget}
+              onClick={(e) => {
+                e.stopPropagation();
+                translatePageWithWidget();
+              }}
               disabled={isTranslating}
               style={{ 
                 fontSize: '12px',
@@ -364,7 +385,10 @@ const FunctionalTranslateWidget = () => {
           ) : (
             <button 
               className="btn btn-outline-primary btn-sm flex-fill"
-              onClick={revertTranslation}
+              onClick={(e) => {
+                e.stopPropagation();
+                revertTranslation();
+              }}
               style={{ 
                 fontSize: '12px',
                 borderColor: '#1a73e8',
@@ -381,7 +405,8 @@ const FunctionalTranslateWidget = () => {
             <button 
               className="btn btn-outline-secondary btn-sm" 
               type="button" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowOptionsDropdown(!showOptionsDropdown);
                 setShowSourceDropdown(false);
                 setShowTargetDropdown(false);
