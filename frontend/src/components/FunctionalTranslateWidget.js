@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const FunctionalTranslateWidget = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -10,6 +10,8 @@ const FunctionalTranslateWidget = () => {
   const [showTargetDropdown, setShowTargetDropdown] = useState(false);
   const [showOptionsDropdown, setShowOptionsDropdown] = useState(false);
   const [originalContent, setOriginalContent] = useState(null);
+  
+  const widgetRef = useRef(null);
 
   const languageOptions = [
     { code: 'auto', name: 'Detect Language' },
@@ -32,19 +34,25 @@ const FunctionalTranslateWidget = () => {
     return lang ? lang.name : code;
   };
 
-  // Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside AND hide widget when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.dropdown-container')) {
+      if (widgetRef.current && !widgetRef.current.contains(event.target)) {
+        // Hide the entire widget when clicking outside
+        setIsVisible(false);
+      } else if (!event.target.closest('.dropdown-container')) {
+        // Close dropdowns when clicking outside dropdown but inside widget
         setShowSourceDropdown(false);
         setShowTargetDropdown(false);
         setShowOptionsDropdown(false);
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+    if (isVisible) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isVisible]);
 
   const handleSourceLanguageChange = (langCode) => {
     setSourceLanguage(langCode);
@@ -211,15 +219,43 @@ const FunctionalTranslateWidget = () => {
     }
   };
 
-  if (!isVisible) return null;
+  // Show widget button when widget is not visible
+  if (!isVisible) {
+    return (
+      <div className="position-fixed" style={{ 
+        top: '10px', 
+        right: '10px', 
+        zIndex: 1050
+      }}>
+        <button 
+          className="btn btn-primary btn-sm shadow-sm"
+          onClick={() => setIsVisible(true)}
+          style={{ 
+            fontSize: '12px',
+            backgroundColor: '#1a73e8',
+            borderColor: '#1a73e8',
+            borderRadius: '20px',
+            padding: '8px 12px'
+          }}
+        >
+          <i className="fas fa-language me-1"></i>
+          Translate
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="position-fixed" style={{ 
-      top: '10px', 
-      right: '10px', 
-      zIndex: 1050,
-      minWidth: '320px'
-    }}>
+    <div 
+      ref={widgetRef}
+      className="position-fixed" 
+      style={{ 
+        top: '10px', 
+        right: '10px', 
+        zIndex: 1050,
+        minWidth: '320px'
+      }}
+    >
       <div className="bg-white border rounded-3 shadow-sm p-3" style={{
         borderColor: '#e3e6ea',
         fontSize: '13px'
@@ -389,7 +425,6 @@ const FunctionalTranslateWidget = () => {
                     className="dropdown-item" 
                     style={{ fontSize: '12px' }}
                     onClick={() => {
-                      localStorage.setItem('alwaysTranslateFrom', sourceLanguage);
                       alert(`Will always translate from ${getLanguageName(sourceLanguage)}`);
                       setShowOptionsDropdown(false);
                     }}
@@ -403,7 +438,6 @@ const FunctionalTranslateWidget = () => {
                     className="dropdown-item" 
                     style={{ fontSize: '12px' }}
                     onClick={() => {
-                      localStorage.setItem('neverTranslateSite', window.location.hostname);
                       alert('Will never translate this site');
                       setShowOptionsDropdown(false);
                     }}
@@ -425,7 +459,7 @@ const FunctionalTranslateWidget = () => {
                     <i className="fas fa-cog me-2"></i>
                     Translation settings
                   </button>
-                </li>
+                  </li>
               </ul>
             )}
           </div>
