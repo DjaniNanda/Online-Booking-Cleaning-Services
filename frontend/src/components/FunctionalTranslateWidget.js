@@ -9,7 +9,6 @@ const FunctionalTranslateWidget = () => {
   const [showSourceDropdown, setShowSourceDropdown] = useState(false);
   const [showTargetDropdown, setShowTargetDropdown] = useState(false);
   const [showOptionsDropdown, setShowOptionsDropdown] = useState(false);
-  const [originalContent, setOriginalContent] = useState(null);
   
   const widgetRef = useRef(null);
 
@@ -21,7 +20,7 @@ const FunctionalTranslateWidget = () => {
     { code: 'de', name: 'German' },
     { code: 'it', name: 'Italian' },
     { code: 'pt', name: 'Portuguese' },
-    { code: 'zh', name: 'Chinese (Simplified)' },
+    { code: 'zh', name: 'Chinese' },
     { code: 'ja', name: 'Japanese' },
     { code: 'ko', name: 'Korean' },
     { code: 'ar', name: 'Arabic' },
@@ -34,216 +33,154 @@ const FunctionalTranslateWidget = () => {
     return lang ? lang.name : code;
   };
 
-  // Close dropdowns when clicking outside AND hide widget when clicking outside
+  // Hide widget when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (widgetRef.current && !widgetRef.current.contains(event.target)) {
-        // Hide the entire widget when clicking outside
+        // If clicking outside the entire widget, hide it
         setIsVisible(false);
       } else if (!event.target.closest('.dropdown-container')) {
-        // Close dropdowns when clicking outside dropdown but inside widget
+        // If clicking inside widget but outside dropdowns, close dropdowns
         setShowSourceDropdown(false);
         setShowTargetDropdown(false);
         setShowOptionsDropdown(false);
       }
     };
 
-    if (isVisible) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [isVisible]);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleSourceLanguageChange = (langCode) => {
     setSourceLanguage(langCode);
     setShowSourceDropdown(false);
-    if (isTranslated) {
-      setIsTranslated(false);
-      revertTranslation();
-    }
+    setIsTranslated(false);
   };
 
   const handleTargetLanguageChange = (langCode) => {
     setTargetLanguage(langCode);
     setShowTargetDropdown(false);
-    if (isTranslated) {
-      setIsTranslated(false);
-      revertTranslation();
-    }
+    setIsTranslated(false);
   };
 
-  // Store original content before translation
-  const storeOriginalContent = () => {
-    if (!originalContent) {
-      const elementsToTranslate = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div, li, td, th, button, a');
-      const contentMap = new Map();
-      
-      elementsToTranslate.forEach((element, index) => {
-        if (element.innerText && element.innerText.trim() && 
-            !element.closest('#google_translate_element') && 
-            !element.closest('.position-fixed') &&
-            element.children.length === 0) {
-          contentMap.set(index, {
-            element: element,
-            originalText: element.innerText
-          });
-        }
-      });
-      
-      setOriginalContent(contentMap);
-    }
-  };
-
-  // Simple client-side translation using Google Translate API (free tier)
-  const translateText = async (text, targetLang) => {
-    try {
-      // Using Google Translate's free API endpoint
-      const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
-      const data = await response.json();
-      
-      if (data && data[0] && data[0][0] && data[0][0][0]) {
-        return data[0][0][0];
-      }
-      return text;
-    } catch (error) {
-      console.error('Translation error:', error);
-      return text;
-    }
-  };
-
+  // Simplified translation using Google Translate Website Widget
   const translatePage = async () => {
     setIsTranslating(true);
     
     try {
-      // Store original content first
-      storeOriginalContent();
-      
-      // Get all text elements that should be translated
-      const elementsToTranslate = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div, li, td, th, button, a');
-      const translationPromises = [];
-      
-      elementsToTranslate.forEach((element) => {
-        // Skip elements that are empty, contain only child elements, or are part of the widget
-        if (element.innerText && 
-            element.innerText.trim() && 
-            !element.closest('.position-fixed') &&
-            !element.closest('#google_translate_element') &&
-            element.children.length === 0) {
-          
-          const promise = translateText(element.innerText, targetLanguage)
-            .then(translatedText => {
-              if (translatedText && translatedText !== element.innerText) {
-                element.innerText = translatedText;
-              }
-            });
-          
-          translationPromises.push(promise);
-        }
-      });
-      
-      // Wait for all translations to complete
-      await Promise.all(translationPromises);
-      setIsTranslated(true);
-      
-    } catch (error) {
-      console.error('Translation failed:', error);
-      alert('Translation failed. Please check your internet connection and try again.');
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
-  const revertTranslation = () => {
-    if (originalContent) {
-      originalContent.forEach((data, index) => {
-        if (data.element && data.originalText) {
-          data.element.innerText = data.originalText;
-        }
-      });
-      setIsTranslated(false);
-    }
-  };
-
-  // Alternative translation method using Google Translate Widget
-  const translatePageWithWidget = async () => {
-    setIsTranslating(true);
-    
-    try {
-      // Remove existing Google Translate elements
-      const existingElements = document.querySelectorAll('[id^="google_translate"], .goog-te-combo, .skiptranslate');
+      // Remove any existing Google Translate elements
+      const existingElements = document.querySelectorAll('[id*="google_translate"], .goog-te-banner-frame, .goog-te-menu-frame');
       existingElements.forEach(el => el.remove());
       
       // Create Google Translate element
       const translateDiv = document.createElement('div');
       translateDiv.id = 'google_translate_element_hidden';
-      translateDiv.style.display = 'none';
+      translateDiv.style.position = 'fixed';
+      translateDiv.style.top = '-1000px'; // Hide it off-screen
+      translateDiv.style.left = '-1000px';
       document.body.appendChild(translateDiv);
       
       // Load Google Translate script
-      if (!window.google || !window.google.translate) {
-        await new Promise((resolve, reject) => {
-          window.googleTranslateElementInit = resolve;
-          const script = document.createElement('script');
-          script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
+      if (!window.googleTranslateElementInit) {
+        window.googleTranslateElementInit = function() {
+          new window.google.translate.TranslateElement({
+            pageLanguage: sourceLanguage === 'auto' ? 'auto' : sourceLanguage,
+            includedLanguages: languageOptions.map(lang => lang.code).filter(code => code !== 'auto').join(','),
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false,
+            multilanguagePage: true
+          }, 'google_translate_element_hidden');
+          
+          // Wait for the element to be created, then trigger translation
+          setTimeout(() => {
+            const selectElement = document.querySelector('#google_translate_element_hidden select');
+            if (selectElement) {
+              // Find the option for target language
+              const targetOption = Array.from(selectElement.options).find(option => 
+                option.value.includes(targetLanguage)
+              );
+              
+              if (targetOption) {
+                selectElement.value = targetOption.value;
+                selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+                setIsTranslated(true);
+                
+                // Hide Google's translate bar if it appears
+                setTimeout(() => {
+                  const banner = document.querySelector('.goog-te-banner-frame');
+                  if (banner) {
+                    banner.style.display = 'none';
+                  }
+                }, 500);
+              }
+            }
+            setIsTranslating(false);
+          }, 2000);
+        };
       }
       
-      // Initialize Google Translate
-      new window.google.translate.TranslateElement({
-        pageLanguage: sourceLanguage === 'auto' ? 'auto' : sourceLanguage,
-        includedLanguages: languageOptions.map(lang => lang.code).filter(code => code !== 'auto').join(','),
-        layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
-      }, 'google_translate_element_hidden');
-      
-      // Wait for the select element to be created and trigger translation
-      setTimeout(() => {
-        const selectElement = document.querySelector('#google_translate_element_hidden select');
-        if (selectElement) {
-          selectElement.value = targetLanguage;
-          selectElement.dispatchEvent(new Event('change'));
-          setIsTranslated(true);
-        } else {
-          // Fallback to manual translation
-          translatePage();
-        }
-      }, 2000);
+      // Load the script if not already loaded
+      if (!document.querySelector('script[src*="translate.google.com"]')) {
+        const script = document.createElement('script');
+        script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.async = true;
+        document.head.appendChild(script);
+      } else if (window.google && window.google.translate) {
+        // If already loaded, just initialize
+        window.googleTranslateElementInit();
+      }
       
     } catch (error) {
-      console.error('Widget translation failed, trying manual translation:', error);
-      // Fallback to manual translation
-      await translatePage();
-    } finally {
+      console.error('Translation failed:', error);
       setIsTranslating(false);
+      
+      // Fallback: Open Google Translate in new tab
+      const currentUrl = encodeURIComponent(window.location.href);
+      const translateUrl = `https://translate.google.com/translate?sl=${sourceLanguage}&tl=${targetLanguage}&u=${currentUrl}`;
+      window.open(translateUrl, '_blank');
     }
   };
 
-  // Show widget button when widget is not visible
-  if (!isVisible) {
-    return (
-      <div className="position-fixed" style={{ 
-        top: '10px', 
-        right: '10px', 
-        zIndex: 1050
-      }}>
-        <button 
-          className="btn btn-primary btn-sm shadow-sm"
-          onClick={() => setIsVisible(true)}
-          style={{ 
-            fontSize: '12px',
-            backgroundColor: '#1a73e8',
-            borderColor: '#1a73e8',
-            borderRadius: '20px',
-            padding: '8px 12px'
-          }}
-        >
-          <i className="fas fa-language me-1"></i>
-          Translate
-        </button>
-      </div>
-    );
-  }
+  const revertTranslation = () => {
+    try {
+      // Try to revert using Google Translate
+      const selectElement = document.querySelector('#google_translate_element_hidden select');
+      if (selectElement) {
+        // Select the original language option (usually the first one)
+        selectElement.selectedIndex = 0;
+        selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+        setIsTranslated(false);
+      } else {
+        // Fallback: reload the page
+        window.location.reload();
+      }
+    } catch (error) {
+      // If all else fails, reload the page
+      window.location.reload();
+    }
+  };
+
+  // Alternative translation method using a different approach
+  const translatePageAlternative = () => {
+    setIsTranslating(true);
+    
+    // Create a simple translation overlay or redirect to Google Translate
+    setTimeout(() => {
+      const currentUrl = encodeURIComponent(window.location.href);
+      const translateUrl = `https://translate.google.com/translate?sl=${sourceLanguage}&tl=${targetLanguage}&u=${currentUrl}`;
+      
+      // Option 1: Open in same tab
+      // window.location.href = translateUrl;
+      
+      // Option 2: Open in new tab (recommended)
+      window.open(translateUrl, '_blank');
+      
+      setIsTranslating(false);
+      setIsTranslated(true);
+    }, 1000);
+  };
+
+  if (!isVisible) return null;
 
   return (
     <div 
@@ -267,7 +204,10 @@ const FunctionalTranslateWidget = () => {
           </div>
           <button 
             className="btn btn-sm p-1" 
-            onClick={() => setIsVisible(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsVisible(false);
+            }}
             style={{ 
               border: 'none', 
               background: 'transparent',
@@ -284,7 +224,8 @@ const FunctionalTranslateWidget = () => {
             <button 
               className="btn btn-outline-secondary btn-sm dropdown-toggle px-2 py-1" 
               type="button" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowSourceDropdown(!showSourceDropdown);
                 setShowTargetDropdown(false);
                 setShowOptionsDropdown(false);
@@ -305,7 +246,10 @@ const FunctionalTranslateWidget = () => {
                   <li key={lang.code}>
                     <button 
                       className="dropdown-item" 
-                      onClick={() => handleSourceLanguageChange(lang.code)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSourceLanguageChange(lang.code);
+                      }}
                       style={{ fontSize: '12px' }}
                     >
                       {lang.name}
@@ -323,7 +267,8 @@ const FunctionalTranslateWidget = () => {
             <button 
               className="btn btn-primary btn-sm dropdown-toggle px-2 py-1" 
               type="button" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowTargetDropdown(!showTargetDropdown);
                 setShowSourceDropdown(false);
                 setShowOptionsDropdown(false);
@@ -349,7 +294,10 @@ const FunctionalTranslateWidget = () => {
                   <li key={lang.code}>
                     <button 
                       className="dropdown-item" 
-                      onClick={() => handleTargetLanguageChange(lang.code)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTargetLanguageChange(lang.code);
+                      }}
                       style={{ fontSize: '12px' }}
                     >
                       {lang.name}
@@ -365,7 +313,10 @@ const FunctionalTranslateWidget = () => {
           {!isTranslated ? (
             <button 
               className="btn btn-primary btn-sm flex-fill"
-              onClick={translatePageWithWidget}
+              onClick={(e) => {
+                e.stopPropagation();
+                translatePageAlternative(); // Using the alternative method that works better
+              }}
               disabled={isTranslating}
               style={{ 
                 fontSize: '12px',
@@ -388,7 +339,10 @@ const FunctionalTranslateWidget = () => {
           ) : (
             <button 
               className="btn btn-outline-primary btn-sm flex-fill"
-              onClick={revertTranslation}
+              onClick={(e) => {
+                e.stopPropagation();
+                revertTranslation();
+              }}
               style={{ 
                 fontSize: '12px',
                 borderColor: '#1a73e8',
@@ -405,7 +359,8 @@ const FunctionalTranslateWidget = () => {
             <button 
               className="btn btn-outline-secondary btn-sm" 
               type="button" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowOptionsDropdown(!showOptionsDropdown);
                 setShowSourceDropdown(false);
                 setShowTargetDropdown(false);
@@ -424,8 +379,9 @@ const FunctionalTranslateWidget = () => {
                   <button 
                     className="dropdown-item" 
                     style={{ fontSize: '12px' }}
-                    onClick={() => {
-                      alert(`Will always translate from ${getLanguageName(sourceLanguage)}`);
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      alert(`Always translate from ${getLanguageName(sourceLanguage)} - Feature coming soon!`);
                       setShowOptionsDropdown(false);
                     }}
                   >
@@ -437,8 +393,9 @@ const FunctionalTranslateWidget = () => {
                   <button 
                     className="dropdown-item" 
                     style={{ fontSize: '12px' }}
-                    onClick={() => {
-                      alert('Will never translate this site');
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      alert('Never translate this site - Feature coming soon!');
                       setShowOptionsDropdown(false);
                     }}
                   >
@@ -451,7 +408,8 @@ const FunctionalTranslateWidget = () => {
                   <button 
                     className="dropdown-item" 
                     style={{ fontSize: '12px' }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       alert('Translation settings - Feature coming soon!');
                       setShowOptionsDropdown(false);
                     }}
