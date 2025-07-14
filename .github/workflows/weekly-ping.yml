@@ -1,11 +1,9 @@
 name: Weekly Backend Ping
-
 on:
   schedule:
-    # Runs every Sunday at 10:00 UTC (adjust time as needed)
-    - cron: '0 10 * * 0'
+    # Runs every Wednesday at 10:00 UTC (adjust time as needed)
+    - cron: '0 10 * * 3'
   workflow_dispatch: # Allows manual triggering
-
 jobs:
   ping-backend:
     runs-on: ubuntu-latest
@@ -25,7 +23,6 @@ jobs:
             echo "❌ Backend returned unexpected response code: $response"
             exit 1
           fi
-
       - name: Ping Health Check Endpoint (if available)
         run: |
           echo "Attempting to ping health check endpoint..."
