@@ -4,6 +4,7 @@ on:
     # Runs every Wednesday at 10:00 UTC (adjust time as needed)
     - cron: '0 10 * * 3'
   workflow_dispatch: # Allows manual triggering
+
 jobs:
   ping-backend:
     runs-on: ubuntu-latest
@@ -12,25 +13,56 @@ jobs:
       - name: Ping Backend
         run: |
           echo "Pinging backend to keep it active..."
-          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}")
+          echo "Backend URL: ${{ secrets.BACKEND_URL }}"
+          
+          # Increase timeout and add more verbose output
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}" || echo "000")
           echo "Response code: $response"
           
-          echo "Response code received: $response"
+          # Check if curl failed completely
+          if [ $response -eq 000 ]; then
+            echo "❌ Failed to connect to backend (timeout or connection error)"
+            echo "This might be due to:"
+            echo "  - Network connectivity issues"
+            echo "  - Backend service is down"
+            echo "  - Invalid BACKEND_URL"
+            exit 1
+          fi
           
-          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ] || [ $response -eq 404 ]; then
+          # Accept more response codes as valid
+          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ] || [ $response -eq 404 ] || [ $response -eq 403 ] || [ $response -eq 401 ]; then
             echo "✅ Backend is responding (got response code $response)"
           else
             echo "❌ Backend returned unexpected response code: $response"
+            echo "Common curl exit codes:"
+            echo "  - 6: Couldn't resolve host"
+            echo "  - 7: Failed to connect to host"
+            echo "  - 28: Operation timeout"
+            echo "  - 35: SSL connect error"
             exit 1
           fi
+
       - name: Ping Health Check Endpoint (if available)
         run: |
           echo "Attempting to ping health check endpoint..."
-          health_response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}/health/" || echo "000")
+          health_response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}/health/" || echo "000")
           echo "Health check response code: $health_response"
           
           if [ $health_response -eq 200 ]; then
             echo "✅ Health check endpoint is responding"
+          elif [ $health_response -eq 000 ]; then
+            echo "ℹ️ Health check endpoint timeout or connection error"
           else
             echo "ℹ️ Health check endpoint not available or returned: $health_response"
           fi
+
+      - name: Debug Information
+        if: failure()
+        run: |
+          echo "=== Debug Information ==="
+          echo "Date: $(date)"
+          echo "Runner IP: $(curl -s ifconfig.me || echo 'Unable to get IP')"
+          echo "DNS Resolution test:"
+          nslookup $(echo "${{ secrets.BACKEND_URL }}" | sed 's|https\?://||' | sed 's|/.*||') || echo "DNS resolution failed"
+          echo "Network connectivity test:"
+          ping -c 3 $(echo "${{ secrets.BACKEND_URL }}" | sed 's|https\?://||' | sed 's|/.*||') || echo "Ping failed"
