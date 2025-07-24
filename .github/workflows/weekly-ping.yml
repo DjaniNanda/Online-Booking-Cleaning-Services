@@ -1,11 +1,10 @@
 name: Weekly Backend Ping
 on:
   schedule:
-    # Runs every Tuesday at 10:00 UTC
+    # Runs every Wednesday at 10:00 UTC (adjust time as needed)
     - cron: '0 10 * * 2'
-    # Runs every Friday at 10:00 UTC
-    - cron: '0 10 * * 5'
   workflow_dispatch: # Allows manual triggering
+
 jobs:
   ping-backend:
     runs-on: ubuntu-latest
@@ -16,15 +15,8 @@ jobs:
           echo "Pinging backend to keep it active..."
           echo "Backend URL: ${{ secrets.BACKEND_URL }}"
           
-          # Check if BACKEND_URL is set
-          if [ -z "${{ secrets.BACKEND_URL }}" ]; then
-            echo "❌ BACKEND_URL secret is not set or is empty"
-            exit 1
-          fi
-          
-          # Test with more verbose curl output and different options
-          echo "Attempting connection with verbose output..."
-          response=$(curl -v -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 --user-agent "GitHub-Actions-Ping" "${{ secrets.BACKEND_URL }}" 2>&1 || echo "000")
+          # Increase timeout and add more verbose output
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}" || echo "000")
           echo "Response code: $response"
           
           # Check if curl failed completely
@@ -49,6 +41,7 @@ jobs:
             echo "  - 35: SSL connect error"
             exit 1
           fi
+
       - name: Ping Health Check Endpoint (if available)
         run: |
           echo "Attempting to ping health check endpoint..."
@@ -62,6 +55,7 @@ jobs:
           else
             echo "ℹ️ Health check endpoint not available or returned: $health_response"
           fi
+
       - name: Debug Information
         if: failure()
         run: |
