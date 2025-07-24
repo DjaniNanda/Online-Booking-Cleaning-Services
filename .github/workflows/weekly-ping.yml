@@ -16,8 +16,15 @@ jobs:
           echo "Pinging backend to keep it active..."
           echo "Backend URL: ${{ secrets.BACKEND_URL }}"
           
-          # Increase timeout and add more verbose output
-          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}" || echo "000")
+          # Check if BACKEND_URL is set
+          if [ -z "${{ secrets.BACKEND_URL }}" ]; then
+            echo "❌ BACKEND_URL secret is not set or is empty"
+            exit 1
+          fi
+          
+          # Test with more verbose curl output and different options
+          echo "Attempting connection with verbose output..."
+          response=$(curl -v -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 --user-agent "GitHub-Actions-Ping" "${{ secrets.BACKEND_URL }}" 2>&1 || echo "000")
           echo "Response code: $response"
           
           # Check if curl failed completely
