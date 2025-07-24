@@ -2,7 +2,7 @@ name: Weekly Backend Ping
 on:
   schedule:
     # Runs every Wednesday at 10:00 UTC (adjust time as needed)
-    - cron: '0 10 * * 2'
+    - cron: '0 1 * * 2'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
