@@ -1,9 +1,7 @@
 name: Weekly Backend Ping
-
 on:
   schedule:
-    # Runs every Sunday at 10:00 UTC (adjust time as needed)
-    - cron: '0 10 * * 0'
+    - cron: '0 1 * * 2'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -11,29 +9,95 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Ping Backend
+      - name: Ping Backend Root
         run: |
-          echo "Pinging backend to keep it active..."
-          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}")
+          echo "Pinging backend root to keep it active..."
+          echo "Backend URL: ${{ secrets.BACKEND_URL }}"
+          
+          # Ping root endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}" || echo "000")
           echo "Response code: $response"
           
-          echo "Response code received: $response"
-          
-          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ] || [ $response -eq 404 ]; then
-            echo "✅ Backend is responding (got response code $response)"
-          else
-            echo "❌ Backend returned unexpected response code: $response"
+          # Check if curl failed completely
+          if [ $response -eq 000 ]; then
+            echo "❌ Failed to connect to backend (timeout or connection error)"
+            echo "This might be due to:"
+            echo "  - Network connectivity issues"
+            echo "  - Backend service is down"
+            echo "  - Invalid BACKEND_URL"
             exit 1
           fi
-
-      - name: Ping Health Check Endpoint (if available)
-        run: |
-          echo "Attempting to ping health check endpoint..."
-          health_response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.BACKEND_URL }}/health/" || echo "000")
-          echo "Health check response code: $health_response"
           
-          if [ $health_response -eq 200 ]; then
-            echo "✅ Health check endpoint is responding"
+          # Accept successful response codes
+          if [ $response -eq 200 ] || [ $response -eq 301 ] || [ $response -eq 302 ]; then
+            echo "✅ Backend root is responding (got response code $response)"
           else
-            echo "ℹ️ Health check endpoint not available or returned: $health_response"
+            echo "⚠️ Backend returned response code: $response (service may still be up)"
+            echo "This is acceptable for keeping the service alive"
           fi
+
+      - name: Ping Health Check Endpoint
+        run: |
+          echo "Pinging health check endpoint..."
+          
+          # Get the full response body for debugging
+          health_response=$(curl -s --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}/health/" || echo '{"error": "connection_failed"}')
+          health_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 --connect-timeout 30 "${{ secrets.BACKEND_URL }}/health/" || echo "000")
+          
+          echo "Health check response code: $health_code"
+          echo "Health check response body: $health_response"
+          
+          if [ $health_code -eq 200 ]; then
+            echo "✅ Health check passed - all systems healthy"
+            # Parse JSON to show individual check results
+            echo "$health_response" | python3 -c "
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    if 'checks' in data:
+        print('Individual health checks:')
+        for check, result in data['checks'].items():
+            status = result.get('status', 'unknown')
+            message = result.get('message', 'no message')
+            emoji = '✅' if status == 'healthy' else '⚠️' if status == 'degraded' else '❌'
+            print(f'  {emoji} {check}: {status} - {message}')
+except:
+    print('Could not parse health check details')
+"
+          elif [ $health_code -eq 503 ]; then
+            echo "❌ Health check failed - service unhealthy"
+            echo "This indicates database or other critical service issues"
+            # Still parse the response to show what's failing
+            echo "$health_response" | python3 -c "
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    if 'checks' in data:
+        print('Failed health checks:')
+        for check, result in data['checks'].items():
+            status = result.get('status', 'unknown')
+            message = result.get('message', 'no message')
+            if status != 'healthy':
+                print(f'  ❌ {check}: {status} - {message}')
+except:
+    print('Could not parse health check details')
+"
+            exit 1
+          elif [ $health_code -eq 000 ]; then
+            echo "❌ Health check endpoint timeout or connection error"
+            exit 1
+          else
+            echo "⚠️ Health check endpoint returned unexpected code: $health_code"
+            echo "Response: $health_response"
+            exit 1
+
+      - name: Debug Information
+        if: failure()
+        run: |
+          echo "=== Debug Information ==="
+          echo "Date: $(date)"
+          echo "Runner IP: $(curl -s ifconfig.me || echo 'Unable to get IP')"
+          echo "DNS Resolution test:"
+          nslookup $(echo "${{ secrets.BACKEND_URL }}" | sed 's|https\?://||' | sed 's|/.*||') || echo "DNS resolution failed"
+          echo "Network connectivity test:"
+          ping -c 3 $(echo "${{ secrets.BACKEND_URL }}" | sed 's|https\?://||' | sed 's|/.*||') || echo "Ping failed"
