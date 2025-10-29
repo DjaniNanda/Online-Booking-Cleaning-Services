@@ -167,9 +167,9 @@ function Navbar() {
                                 </button>
                             </li>
                             <li className="nav-item cta-desktop">
-                                <a href="tel:+1(647)913-7817">
+                                <a href="tel:+1(647)906-7436">
                                     <button id='phone'>
-                                        <i className="bi bi-telephone"></i> +1(647)913-7817
+                                        <i className="bi bi-telephone"></i> +1(647)906-7436
                                     </button>
                                 </a>
                             </li>
@@ -183,7 +183,7 @@ function Navbar() {
                             <div className="buttons-container">
                                 <button id='button1' onClick={() => setIsPopupOpen(true)} className="open-btn">Get A Quote</button>
                                 <button id="button2" onClick={navigateToBookingForm}>Book Now</button>
-                                <a href="tel:+1(647)913-7817">
+                                <a href="tel:+1(647)906-7436">
                                     <button id="button3">Call</button>
                                 </a>
                             </div>
