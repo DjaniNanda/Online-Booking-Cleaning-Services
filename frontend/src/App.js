@@ -7,7 +7,6 @@ import Footer from "./views/Footer";
 import Homepage from './views/Homepage.js';
 import BookingForm from "./views/BookingForm.js";
 import ScrollToTop from './views/ScrollToTop';
-import FunctionalTranslateWidget from './components/FunctionalTranslateWidget.js';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
