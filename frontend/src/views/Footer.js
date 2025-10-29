@@ -42,9 +42,9 @@ function Footer() {
                 <span>Brampton, Ontario, Canada</span>
               </li>
               <li>
-                <a href="tel:+1(647)913-7817">
+                <a href="tel:+1(647)906-7436">
                   <i className="bi bi-telephone-fill"></i>
-                  <span>+1 (647) 913-7817</span>
+                  <span>+1 (647) 906-7436</span>
                 </a>
               </li>
               <li>
