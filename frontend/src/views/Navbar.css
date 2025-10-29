@@ -48,7 +48,7 @@ body, html {
 
 
 /* CTA Buttons */
-#phone, #book,#estimation {
+#phone, #book, #estimation {
     margin: 3px 10px;
     color: rgb(32, 32, 32);
     background-color: rgb(253, 219, 26);
@@ -59,7 +59,7 @@ body, html {
     transition: all 0.3s;
 }
 
-#phone:hover, #book:hover,#estimation:hover {
+#phone:hover, #book:hover, #estimation:hover {
     color: white;
     background-color: #41392c;
 }
@@ -89,7 +89,7 @@ body, html {
 }
 
 /* Mobile CTA buttons */
-#button1, #button2 ,#button3{
+#button1, #button2, #button3 {
     font-size: 18px;
     cursor: pointer;
     border: none;
@@ -102,7 +102,7 @@ body, html {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-#button1:hover, #button2:hover,#button3:hover {
+#button1:hover, #button2:hover, #button3:hover {
     color: white;
     background-color: #41392c;
 }
@@ -134,7 +134,7 @@ body, html {
         margin-right: 10px;
     }
     
-    #phone, #book,#estimation {
+    #phone, #book, #estimation {
         width: 100%;
         margin: 0px 0px 0px 0px;
     }
@@ -154,11 +154,39 @@ body, html {
     .cta-desktop {
         display: none;
     }
-    
 }
 
-/* Extra small screens */
+/* Small mobile devices (576px) */
 @media (max-width: 576px) {
+    .navbar {
+        height: 85px;
+        padding: 0 5px;
+    }
+    
+    .navbar-brand img {
+        width: 75px;
+        margin-left: 10px;
+        padding: 6px;
+    }
+    
+    .navbar-toggler {
+        margin-right: 10px;
+    }
+    
+    .buttons-container {
+        bottom: 15px;
+        gap: 15px;
+    }
+    
+    #button1, #button2, #button3 {
+        width: 110px;
+        height: 65px;
+        font-size: 17px;
+    }
+}
+
+/* Extra small screens (400px) */
+@media (max-width: 400px) {
     .navbar {
         padding: 0 10px;
     }
@@ -168,9 +196,44 @@ body, html {
         margin-left: 5px;
     }
     
-    #button1, #button2 {
+    #button1, #button2, #button3 {
         width: 100px;
+        height: 60px;
         font-size: 16px;
+    }
+    
+    .buttons-container {
+        gap: 12px;
     }
 }
 
+/* Very small screens (360px) */
+@media (max-width: 360px) {
+    .navbar {
+        height: 80px;
+        padding: 0 5px;
+    }
+    
+    .navbar-brand img {
+        width: 65px;
+        margin-left: 3px;
+        padding: 5px;
+        border: 1.5px solid #fff;
+    }
+    
+    .navbar-toggler {
+        margin-right: 5px;
+    }
+    
+    .buttons-container {
+        bottom: 10px;
+        gap: 10px;
+    }
+    
+    #button1, #button2, #button3 {
+        width: 90px;
+        height: 55px;
+        font-size: 15px;
+        border-radius: 25px;
+    }
+}
