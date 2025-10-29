@@ -14,7 +14,6 @@ const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 function App() {
   return (
     <Router>
-      <FunctionalTranslateWidget />
       <ScrollToTop />
       <Navbar />
       <Routes>
